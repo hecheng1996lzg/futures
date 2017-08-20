@@ -18,8 +18,8 @@ class CountController extends Controller
 
     public $multiple = 10; //默认手数
 
-    public $max_continuity = 10; //默认连续10
-    public $max_average = 51;  //默认均线51
+    public $max_continuity = 5; //默认连续10
+    public $max_average = 5;  //默认均线51
 
     public function index(){
         return view('index');
@@ -42,45 +42,27 @@ class CountController extends Controller
          * 1、将当日与前几日均线对比，且连续几天
          * 2、将当日均线与前几日均线对比，且连续几天
          * 3、将当日与昨天对比，且连续几天
-         */
-        switch ($request->input('comparative_type')){
+         **/
+        $comparative_type = $request->input('comparative_type'); //对比方式
+        switch ($comparative_type){
             case 1:
-                for($i=1; $i<=$this->max_continuity; $i++){
-                    for($j=2; $j<=$this->max_average; $j++){
-                        $deal = new Deal($this->data, $i, $j, $this->multiple);
-                        $this->results[$i][$j] = $deal->prevailingThanAverage();
-                        $this->results_weight[$i][$j] = $deal->prevailingThanAverage_Weight();
-                        foreach ($deal->total as $key=>$value){
-                            $this->results_year_detail[$i][$key][$j] = $value;
-                        }
-                    }
-                }
                 break;
             case 2:
-                for($i=1; $i<=$this->max_continuity; $i++){
-                    for($j=2; $j<=$this->max_average; $j++){
-                        $deal = new Deal($this->data, $i, $j, $this->multiple);
-                        $this->results[$i][$j] = $deal->averageThanAverage();
-                        $this->results_weight[$i][$j] = $deal->prevailingThanAverage_Weight();
-                        foreach ($deal->total as $key=>$value){
-                            $this->results_year_detail[$i][$key][$j] = $value;
-                        }
-                    }
-                }
                 break;
             case 3:
                 $this->max_average = 2;
-                for($i=1; $i<=$this->max_continuity; $i++){
-                    for($j=2; $j<=$this->max_average; $j++){
-                        $deal = new Deal($this->data, $i, $j, $this->multiple);
-                        $this->results[$i][$j] = $deal->prevailingThanPrevious();
-                        $this->results_weight[$i][$j] = $deal->prevailingThanAverage_Weight();
-                        foreach ($deal->total as $key=>$value){
-                            $this->results_year_detail[$i][$key][$j] = $value;
-                        }
-                    }
-                }
                 break;
+        }
+        for($i=1; $i<=$this->max_continuity; $i++){
+            for($j=2; $j<=$this->max_average; $j++){
+                $deal = new Deal($this->data, $i, $j, $this->multiple, $comparative_type);
+                $this->results[$i][$j] = $deal->countProfit_Percentage();
+                $this->results_weight[$i][$j] = $deal->prevailingThanAverage_Weight();
+                foreach ($deal->total as $key=>$value){
+                    $this->results_year_detail[$i][$key][$j] = $value;
+                }
+                unset($deal);
+            }
         }
 
         $list = $this->createList($this->results,'百分比');
@@ -90,6 +72,12 @@ class CountController extends Controller
         echo mb_convert_encoding($list."\r\n".$weightList."\r\n".$this->createListYear(),'gb2312');
     }
 
+
+    /**
+     * 在设置了最小年份，最大年份后。
+     * 该函数会将传入文件，裁剪后只保留满足年份条件的范围
+     * 储存在 $this->data 中
+     **/
     private function initialData($path){
         $data = file_get_contents($path);
         $data = explode("\r\n",$data);

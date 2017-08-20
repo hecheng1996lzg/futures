@@ -17,50 +17,76 @@ class Deal extends Model
     public $deal_state; //储存着上一次交易的状态是买入还是卖出
     public $deal_number; //储存着上一次交易的价格
 
-    public $test_num = 0;
-    public $test_array = [];
+    public $test_num = 0; //调试用
+    public $test_array = []; //调试用
 
-    function __construct($data=null,$continuity=null,$average=null,$multiple=null) {
+    function __construct($data=null,$continuity=null,$average=null,$multiple=null,$comparative_type=1) {
         $this->data = $data;
         $this->continuity = $continuity;
         $this->average = $average;
         $this->multiple = $multiple;
+        $this->comparative_type = $comparative_type;
     }
 
-    public function prevailingThanAverage(){
+    /**
+     * 遍历日期范围内的数据，计算总盈利百分比
+     **/
+    public function countProfit_Percentage(){
         foreach ($this->data as $key=>$value){
             $year = $this->getYear($value[0]);
-            $bool = ($this->continuity+$this->average-2<=$key)? // 固定均线不能为空值的计算
-                $this->isMoreAverage($key): // true:卖 ; false：买
-                '--';
-            $isCount = $this->setContinuityArr($bool);
-            /*
+            /**
+             * 计算当日是否满足条件。
+             **/
+            if($this->continuity+$this->average-2<=$key){
+                /**
+                 * 根据比较类型，进行不同计算当天是
+                 * true:卖 ; false：买 ; --：无结果
+                 */
+                switch ($this->comparative_type){
+                    case 1: //将当日与前几日均线对比，且连续几天
+                        $bool = $this->isMoreAverage($key);
+                        break;
+                    case 2: //将当日均线与前几日均线对比，且连续几天
+                        $bool = $this->isMoreYesterdayAverage($key);
+                        break;
+                    case 3: //将当日与昨天对比，且连续几天
+                        $bool = $this->isMoreYesterdayPrice($key);
+                        break;
+                }
+            }else{
+                // 前几日不构成连续几日平均值的条件，直接为--
+                $bool = '--';
+            }
+
+            $operation = $this->setContinuityArr($bool);
+
+            /**
              * 跨年则更新初始资金
              * 跨年度需要总结上一年的总金额
-             * */
+             **/
             if($year != $this->prev_year){
-                $this->countYearTotal();
-                $this->resetInitialCapital($value[1]);
+                $this->countYearTotal();  //总结去年的盈利
+                $this->resetInitialCapital($value[1]);  //计算今年的初始资金
                 $this->prev_year = $year;
                 $this->prev_num = 0;
             }
 
-            /*
+            /**
              * 满足交易条件首先操作结果不能为--
-             * */
-            if($isCount!=='--'){
+             **/
+            if($operation!=='--'){
                 /*
                  * 第一次开始交易 或 与之前交易操作相反
-                 * 计算上一次操作和这次操作的差值
                  * */
                 if($this->deal_state===null || $bool !== $this->deal_state){
                     $this->calculationTotal($value,$bool);
                 }
             }
 
-            /*
+            /**
              * 最后一个值进行结束计算
-             * */
+             * 结束计算：以当前价格卖掉或买入手上的商品
+             **/
             if($key+1 == count($this->data) && !array_key_exists($year,$this->total)){
                 $this->prev_year = $year;
                 $this->calculationTotal($value, !$this->deal_state);
@@ -70,66 +96,12 @@ class Deal extends Model
         return round(array_sum($this->total)*100,2).'%';
     }
 
-    public function averageThanAverage(){
-        foreach ($this->data as $key=>$value){
-            $year = $this->getYear($value[0]);
-            $bool = ($this->continuity+$this->average-2<=$key)?
-                $this->isMoreYesterdayAverage($key):
-                '--';
-            $isCount = $this->setContinuityArr($bool);
-            if($year != $this->prev_year){
-                $this->countYearTotal();
-                $this->resetInitialCapital($value[1]);
-                $this->prev_year = $year;
-                $this->prev_num = 0;
-            }
-
-            if($isCount!=='--'){
-                if($this->deal_state===null || $bool !== $this->deal_state){
-                    $this->calculationTotal($value,$bool);
-                }
-            }
-
-            if($key+1 == count($this->data) && !array_key_exists($year,$this->total)){
-                $this->prev_year = $year;
-                $this->calculationTotal($value, !$this->deal_state);
-                $this->countYearTotal();
-            }
-        }
-        return round(array_sum($this->total)*100,2).'%';
-    }
-
-    public function prevailingThanPrevious(){
-        foreach ($this->data as $key=>$value){
-            $year = $this->getYear($value[0]);
-            $bool = ($this->continuity+$this->average-2<=$key)?
-                $this->isMoreYesterdayPrice($key):
-                '--';
-            $isCount = $this->setContinuityArr($bool);
-            if($year != $this->prev_year){
-                $this->countYearTotal();
-                $this->resetInitialCapital($value[1]);
-                $this->prev_year = $year;
-                $this->prev_num = 0;
-            }
-
-            if($isCount!=='--'){
-                if($this->deal_state===null || $bool !== $this->deal_state){
-                    $this->calculationTotal($value,$bool);
-                }
-            }
-
-            if($key+1 == count($this->data) && !array_key_exists($year,$this->total)){
-                //dd($key,$this->data,count($this->data),$year,$value);
-                $this->prev_year = $year;
-                $this->calculationTotal($value, !$this->deal_state);
-                $this->countYearTotal();
-            }
-        }
-        return round(array_sum($this->total)*100,2).'%';
-    }
-
-
+    /**
+     * 参数：$value ：一条数据
+     *      $bool  ：交易类型
+     * 返回值：空
+     * 执行：根据交易类型，计算盈亏数值。保存这次交易时的状态和价格。
+     **/
     private function calculationTotal($value, $bool){
         if($this->deal_number!==null) {
             if($bool){ //买入
@@ -138,26 +110,29 @@ class Deal extends Model
                 $this->prev_num += $value[1] - $this->deal_number;
             }
             //if($this->prev_year==2015)dd($this->prev_year,$this->deal_number,$value[1]);
-
         }
         //$this->test_array[] = [$value[0],$value[1],$this->deal_number];
-
         $this->deal_state = $bool;
         $this->deal_number = $value[1];
     }
 
+    /**
+     * 计算年份收益百分比
+     * 盈亏值 / 初始资金 × 手数 × 100%
+     * 将结果保存至 年份盈利数组 中，用于后期统计。
+     **/
     private function countYearTotal(){
         if($this->prev_num==0)return ;
         $num = $this->prev_num * $this->multiple / $this->initial_capital;
         $this->total[$this->prev_year] = $num;
-        if($this->prev_year!=2014){
-            //dd($this->prev_num,$this->multiple,$this->initial_capital);
-        }
     }
 
+    /**
+     * 计算年份初始资金
+     * 第一天的收盘价 × 手数 × 25%
+     **/
     private function resetInitialCapital($price){
         $this->initial_capital =  $price * $this->multiple * 0.25;
-        //$this->test_array[] = $this->initial_capital;
     }
 
     /**
@@ -200,6 +175,7 @@ class Deal extends Model
     }
 
     /**
+     * 保存当日操作方式。
      * 对比前几日，判断是否达到连续天数。
      * 返回true 或 false 或 --
      * */
