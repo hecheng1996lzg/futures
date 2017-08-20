@@ -26,21 +26,61 @@ class CountController extends Controller
     }
 
     public function calculation(Request $request){
+        /**
+         * 初始化数据
+         * 1、将文件读入数组
+         * 2、记录参数
+         */
         $path = $_FILES['fileText']['tmp_name'];
 
         $this->min_year = $request->input('min_year');
         $this->max_year = $request->input('max_year');
         $this->initialData($path);
 
-        for($i=1; $i<=$this->max_continuity; $i++){
-            for($j=2; $j<=$this->max_average; $j++){
-                $deal = new Deal($this->data, $i, $j, $this->multiple);
-                $this->results[$i][$j] = $deal->calculationDetail();
-                $this->results_weight[$i][$j] = $deal->calculationWeight();
-                foreach ($deal->total as $key=>$value){
-                    $this->results_year_detail[$i][$key][$j] = $value;
+        /**
+         * 参数不同对比情况，决定是否进行买卖操作
+         * 1、将当日与前几日均线对比，且连续几天
+         * 2、将当日均线与前几日均线对比，且连续几天
+         * 3、将当日与昨天对比，且连续几天
+         */
+        switch ($request->input('comparative_type')){
+            case 1:
+                for($i=1; $i<=$this->max_continuity; $i++){
+                    for($j=2; $j<=$this->max_average; $j++){
+                        $deal = new Deal($this->data, $i, $j, $this->multiple);
+                        $this->results[$i][$j] = $deal->prevailingThanAverage();
+                        $this->results_weight[$i][$j] = $deal->prevailingThanAverage_Weight();
+                        foreach ($deal->total as $key=>$value){
+                            $this->results_year_detail[$i][$key][$j] = $value;
+                        }
+                    }
                 }
-            }
+                break;
+            case 2:
+                for($i=1; $i<=$this->max_continuity; $i++){
+                    for($j=2; $j<=$this->max_average; $j++){
+                        $deal = new Deal($this->data, $i, $j, $this->multiple);
+                        $this->results[$i][$j] = $deal->averageThanAverage();
+                        $this->results_weight[$i][$j] = $deal->prevailingThanAverage_Weight();
+                        foreach ($deal->total as $key=>$value){
+                            $this->results_year_detail[$i][$key][$j] = $value;
+                        }
+                    }
+                }
+                break;
+            case 3:
+                $this->max_average = 2;
+                for($i=1; $i<=$this->max_continuity; $i++){
+                    for($j=2; $j<=$this->max_average; $j++){
+                        $deal = new Deal($this->data, $i, $j, $this->multiple);
+                        $this->results[$i][$j] = $deal->prevailingThanPrevious();
+                        $this->results_weight[$i][$j] = $deal->prevailingThanAverage_Weight();
+                        foreach ($deal->total as $key=>$value){
+                            $this->results_year_detail[$i][$key][$j] = $value;
+                        }
+                    }
+                }
+                break;
         }
 
         $list = $this->createList($this->results,'百分比');

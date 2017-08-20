@@ -20,6 +20,13 @@
                 <label for="max_year">结束年份：</label>
                 <input type="text" id="max_year" name="max_year" value="2017">
             </p>
+            <p>
+                <select name="comparative_type">
+                    <option value="1">默认: 均线对比均线</option>
+                    <option value="2">当日均线比前一日均线</option>
+                    <option value="3">当日价格比前一日价格</option>
+                </select>
+            </p>
             <input type="file" id="file" name="fileText">
             <button type="submit">submit</button>
         </form>

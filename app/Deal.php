@@ -27,11 +27,11 @@ class Deal extends Model
         $this->multiple = $multiple;
     }
 
-    public function calculationDetail(){
+    public function prevailingThanAverage(){
         foreach ($this->data as $key=>$value){
             $year = $this->getYear($value[0]);
             $bool = ($this->continuity+$this->average-2<=$key)? // 固定均线不能为空值的计算
-                $this->getAverageAbove($key): // true:卖 ; false：买
+                $this->isMoreAverage($key): // true:卖 ; false：买
                 '--';
             $isCount = $this->setContinuityArr($bool);
             /*
@@ -62,6 +62,64 @@ class Deal extends Model
              * 最后一个值进行结束计算
              * */
             if($key+1 == count($this->data) && !array_key_exists($year,$this->total)){
+                $this->prev_year = $year;
+                $this->calculationTotal($value, !$this->deal_state);
+                $this->countYearTotal();
+            }
+        }
+        return round(array_sum($this->total)*100,2).'%';
+    }
+
+    public function averageThanAverage(){
+        foreach ($this->data as $key=>$value){
+            $year = $this->getYear($value[0]);
+            $bool = ($this->continuity+$this->average-2<=$key)?
+                $this->isMoreYesterdayAverage($key):
+                '--';
+            $isCount = $this->setContinuityArr($bool);
+            if($year != $this->prev_year){
+                $this->countYearTotal();
+                $this->resetInitialCapital($value[1]);
+                $this->prev_year = $year;
+                $this->prev_num = 0;
+            }
+
+            if($isCount!=='--'){
+                if($this->deal_state===null || $bool !== $this->deal_state){
+                    $this->calculationTotal($value,$bool);
+                }
+            }
+
+            if($key+1 == count($this->data) && !array_key_exists($year,$this->total)){
+                $this->prev_year = $year;
+                $this->calculationTotal($value, !$this->deal_state);
+                $this->countYearTotal();
+            }
+        }
+        return round(array_sum($this->total)*100,2).'%';
+    }
+
+    public function prevailingThanPrevious(){
+        foreach ($this->data as $key=>$value){
+            $year = $this->getYear($value[0]);
+            $bool = ($this->continuity+$this->average-2<=$key)?
+                $this->isMoreYesterdayPrice($key):
+                '--';
+            $isCount = $this->setContinuityArr($bool);
+            if($year != $this->prev_year){
+                $this->countYearTotal();
+                $this->resetInitialCapital($value[1]);
+                $this->prev_year = $year;
+                $this->prev_num = 0;
+            }
+
+            if($isCount!=='--'){
+                if($this->deal_state===null || $bool !== $this->deal_state){
+                    $this->calculationTotal($value,$bool);
+                }
+            }
+
+            if($key+1 == count($this->data) && !array_key_exists($year,$this->total)){
                 //dd($key,$this->data,count($this->data),$year,$value);
                 $this->prev_year = $year;
                 $this->calculationTotal($value, !$this->deal_state);
@@ -70,6 +128,7 @@ class Deal extends Model
         }
         return round(array_sum($this->total)*100,2).'%';
     }
+
 
     private function calculationTotal($value, $bool){
         if($this->deal_number!==null) {
@@ -101,7 +160,10 @@ class Deal extends Model
         //$this->test_array[] = $this->initial_capital;
     }
 
-    private function getAverageAbove($key){
+    /**
+     * 获取当天的均线价格
+     */
+    private function getAverageAboveOne($key){
         $total = 0;
         $num = 0;
         for ($i=0; $i<$this->average; $i++){
@@ -110,9 +172,37 @@ class Deal extends Model
                 $num++;
             }
         }
-        return ($total/$num) < $this->data[$key][1];
+        return $total/$num;
     }
 
+    /**
+     * 当天价格是否超过均线
+     * */
+    private function isMoreAverage($key){
+        $ave = $this->getAverageAboveOne($key);
+        return $ave < $this->data[$key][1];
+    }
+
+    /**
+     * 当天均价是否超过昨日均线
+     * */
+    private function isMoreYesterdayAverage($key){
+        $today = $this->getAverageAboveOne($key);
+        $yesterday = $this->getAverageAboveOne($key-1);
+        return $yesterday < $today;
+    }
+
+    /**
+     * 当天价格是否超过昨日价格
+     **/
+    private function isMoreYesterdayPrice($key){
+        return $this->data[$key-1][1] < $this->data[$key][1];
+    }
+
+    /**
+     * 对比前几日，判断是否达到连续天数。
+     * 返回true 或 false 或 --
+     * */
     private function setContinuityArr($bool){
         array_push($this->continuities, $bool);
         if(count($this->continuities) > $this->continuity){
@@ -137,11 +227,10 @@ class Deal extends Model
         return $arr[0][0];
     }
 
-    public function calculationWeight(){
+    public function prevailingThanAverage_Weight(){
         $num = 1;
         foreach ($this->total as $value){
             $num *= $value+1;
-            //$this->test_array[] = round($value,2)+1;
         }
         return round($num,2);
     }
