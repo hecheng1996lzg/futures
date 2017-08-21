@@ -1,0 +1,392 @@
+
+
+/* header start */
+header.header{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    padding: 0px 30px;
+    height: 66px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.16);
+    background: #fff;
+}
+
+body{
+    display: flex;
+    flex-flow: column;
+    min-height: 100vh;
+}
+
+.logo{
+    height:80%;
+    margin-top: 7px;
+    margin-right:100px;
+}
+
+.search{
+    align-items: center;
+}
+
+menu{
+    flex: 1;
+}
+
+menu ul{
+    display: flex;
+    height:100%;
+}
+
+menu ul li{
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    margin-right:50px;
+}
+/* header end */
+
+/* body layout start */
+.body{
+    display: flex;
+    flex:1;
+}
+
+.body>aside{
+    width: 250px;
+}
+
+.body>main{
+    flex:1;
+}
+/* body layout end */
+
+/* sidebar end */
+.body>aside{
+    display: flex;
+    flex-direction: column;
+    background: #2C2B39;
+}
+
+.user{
+    margin: 40px 0px;
+    text-align: center;
+    object-fit: cover;
+    object-position: center;
+
+}
+
+.user img{
+    width: calc(100% - 100px);
+    height:100%;
+    border-radius:50%;
+}
+
+.sidebar{
+    color: #ddd;
+}
+
+.sidebar>li{
+    margin-bottom:25px;
+}
+
+.sidebar ul li{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 1px 0px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sidebar ul li span{
+    flex:1;
+}
+
+.sidebar li ul p{
+    display: flex;
+    padding: 7px 15px 7px 30px;
+}
+
+.sidebar>li>ul>li>ul{
+    background: #272632;
+    box-shadow: 0 5px 4px -3px rgba(0,0,0,.1) inset;
+    width: 100%;
+}
+
+.sidebar ul li p:hover{
+    background: #253447;
+}
+
+.sidebar ul li.active>p{
+    background: #1C4972;
+}
+
+.sidebar ul li p:before{
+    margin-right: 8px;
+}
+/* sidebar end */
+
+/* content start */
+main{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: url("../images/content_bg.png") 0 / cover fixed;
+}
+
+
+/* list-add start */
+.list-add h2:first-child{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h2{
+    padding-right:30px;
+}
+
+.h2-ctl{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.h2-ctl ul{
+    display: flex;
+}
+
+.h2-ctl ul li:first-child{
+    margin-right:20px;
+}
+
+.h2-ctl ul li:hover{
+    transition: all 0.2s ease;
+    color: #039BE5;
+}
+
+.h2-ctl ul a:before{
+    margin-right:5px;
+}
+
+.list-add-content{
+    margin-bottom:20px;
+}
+
+.list-add-content select{
+    width: 100%;
+}
+
+.list-option .list-table{
+    margin-top:0px;
+}
+
+.list-option .list-table tbody tr:nth-of-type(2n-1){
+    background: none;
+}
+/* list-add end */
+
+.list-content{
+    position: relative;
+    margin: 0px 50px 66px;
+    background: #363C52;
+}
+
+.list-content>h2{
+    padding-top:20px;
+    padding-left:20px;
+}
+
+.list-content>h2 span{
+    font-size: 12px;
+    padding-left:6px;
+    color: rgba(255,255,255,0.6);
+}
+
+.list-control{
+    padding: 0px 20px;
+    display: flex;
+    align-items: center;
+}
+
+.list-control li{
+    color: #fff;
+    margin-right: 20px;
+    transition: all 0.2s ease;
+}
+
+.list-control li:hover{
+    color: #039BE5;
+}
+
+.list-control li a:before{
+    margin-right:5px;
+}
+
+.list-control>li:first-child{
+    display: flex;
+    align-items: center;
+    margin-right: 50px;
+}
+
+.list-control>li:first-child input{
+    margin:0px 20px;
+}
+
+
+.list-table{
+    margin-top:20px;
+    width: 100%;
+    color: #fff;
+}
+
+.list-table th{
+    padding-bottom:5px;
+}
+
+.list-table td{
+    padding: 10px 0px;
+}
+
+.list-table tbody tr{
+    transition: all 0.2s ease;
+}
+
+.list-table tbody tr:nth-of-type(2n-1){
+    background: rgba(43,45,66,0.5);
+}
+
+.list-content .list-table tbody tr:hover{
+    background: rgba(43,45,66,.2);
+    box-shadow: 0 0 10px rgba(0,0,0,.3);
+}
+
+.list-content .list-table tbody tr:nth-of-type(2n-1):hover{
+    background: rgba(43,45,66,1);
+    box-shadow: 0 0 10px rgba(0,0,0,.3) inset;
+}
+
+
+.list-table tr td:first-child,.list-table tr th:first-child{
+    padding-left:20px;
+}
+
+.list-table tbody tr td:nth-of-type(10){
+    display: flex;
+    align-items: center;
+}
+
+
+.list-content-page{
+    margin-top: 30px;
+    padding: 0px 20px 20px;
+    display: flex;
+    justify-content: space-between;
+    color: #fff;
+}
+
+.list-table .border-bottom-input{
+    width: 100%;
+    border-bottom: 1px solid rgba(255,255,255,.4);
+    text-align: left;
+    text-indent: 6px;
+}
+
+.list-table tbody tr:hover{
+    background: none;
+}
+
+.list-table tbody td{
+    padding-right:50px;
+}
+
+.list-table tbody td:last-child{
+    padding-right:20px;
+}
+/* content end */
+
+/*footer start*/
+footer{
+    position: absolute;
+    left:0px;
+    right: 0px;
+    bottom: 16px;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+footer:before{
+    content: '';
+    display: block;
+    width: 100px;
+    height: 1px;
+    margin-right:10px;
+    background: #fff;
+}
+footer:after{
+    content: '';
+    display: block;
+    width: 100px;
+    height: 1px;
+    margin-left:10px;
+    background: #fff;
+}
+/*footer end*/
+
+/* ucenter */
+.ucenter{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.ucenter>img{
+    height: 60%;
+    margin-right:15px;
+    border-radius: 50%;
+}
+
+.ucenter>span{
+    margin-right:15px;
+}
+
+/*SVG*/
+svg rect{
+    fill: #039BE5;
+}
+
+svg circle{
+    stroke-width: 10px;
+    stroke: #333;
+    r:25;
+    fill-opacity:1;
+}
+
+svg circle.active{
+    animation: circle-active 1.2s ease;
+}
+
+@keyframes circle-active {
+    0%{
+        fill-opacity:1;
+        r:25;
+        stroke-width: 10px;
+    }
+    66%{
+        fill-opacity:0.6;
+        r:22;
+        stroke-width: 13px;
+    }
+    100%{
+        fill-opacity:1;
+        r:25;
+        stroke-width: 10px;
+    }
+}
+
+/* index覆盖 */
+.form-btn button:first-child{
+    margin-right:20px;
+}

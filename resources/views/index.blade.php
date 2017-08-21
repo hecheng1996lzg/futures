@@ -3,38 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script src="{{ asset('assets/script/jquery-3.1.1.js') }}"></script>
-    <script src="{{ asset('assets/script/Calculation.js') }}"></script>
-    <script src="{{ asset('assets/script/Futures.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/toggle_animation.css') }}" />
+    <script src="{{ asset('assets/js/jquery-1.7.1.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.form.js') }}"></script>
+    <script src="{{ asset('assets/js/line.js') }}"></script>
+    <script src="{{ asset('assets/js/vector.js') }}"></script>
+    <script src="{{ asset('assets/js/script.js') }}"></script>
+    <script src="{{ asset('assets/js/log.js') }}"></script>
 </head>
 <body>
 
-<main>
-    <article>
-        <form id="form-futures" method="post" enctype="multipart/form-data" action="{{ asset('count/index') }}">
-            <p>
-                <label for="min_year">开始年份：</label>
-                <input type="text" id="min_year" name="min_year" value="2012">
-            </p>
-            <p>
-                <label for="max_year">结束年份：</label>
-                <input type="text" id="max_year" name="max_year" value="2017">
-            </p>
-            <p>
-                <select name="comparative_type">
-                    <option value="1">默认: 均线对比均线</option>
-                    <option value="2">当日均线比前一日均线</option>
-                    <option value="3">当日价格比前一日价格</option>
-                </select>
-            </p>
-            <input type="file" id="file" name="fileText">
-            <button type="submit">submit</button>
-        </form>
-    </article>
-    <article class="results">
+<header class="header">
+    <img class="logo" src="{{ asset('assets/images/logo.PNG') }}" alt=""/>
+    <menu>
+        <ul class="border-light border-light-bottom">
+            <li class="active">
+                <p class="iconfont icon-shouye"><a href="#"> 我的工作台</a></p>
+            </li>
+            <li>
+                <p class="iconfont icon-leimu"><a href="#"> 我的参数</a></p>
+            </li>
+            <li>
+                <p class="iconfont icon-bangzhuzhongxin"><a href="#"> 系统配置</a></p>
+            </li>
+        </ul>
+    </menu>
+    <div class="ucenter">
+        <img src="{{ asset('assets/images/user.jpg') }}" alt="">
+        <span>olaolaola</span>
+        <span>退出</span>
+    </div>
+</header>
 
-    </article>
-</main>
+<div class="body">
+    <aside>
+<!--
+        <div class="user">
+            <img src="images/user.jpg" alt=""/>
+        </div>
+-->
+        <ul class="sidebar">
+            <li>
+                <h3>系统功能</h3>
+                <ul class="border-light border-light-right">
+                    <li class="active">
+                        <p class="iconfont icon-duozhongzhifu">单纯价格系统</p>
+                    </li>
+                    <li>
+                        <p class="iconfont icon-duozhongzhifu">开发中...</p>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </aside>
+    <main>
+        <article class="list-option">
+            <form id="addForm"  method="post" enctype="multipart/form-data" action="{{ asset('count/index') }}">
+                <section class="list-add form-tab list-option-show">
+                    <h2>
+                        <span>连续几日&均值计算</span>
+                        <div class="container">
+                            <div class="bg_con">
+                                <input id="checked_1" type="checkbox" class="switch" />
+                                <label for="checked_1"></label>
+                            </div>
+                        </div>
+                    </h2>
+                    <div class="list-add-content content">
+                        <section>
+                            <div>
+                                <label for="min_year">开始日期：</label>
+                                <p>
+                                    <input id="min_year" name="min_year" type="date" class="input-text" placeholder="请输入开始年份" value="2012" required>
+                                </p>
+                            </div>
+                            <div>
+                                <label for="max_year">结束日期：</label>
+                                <p>
+                                    <input id="max_year" name="max_year" type="date" class="input-text" placeholder="请输入结束年份" value="2017" required>
+                                </p>
+                            </div>
+                            <div>
+                                <label>比较方式：{{ $errors->first('comparative_type') }}</label>
+                                <p>
+                                    <select name="comparative_type" class="input-text">
+                                        <option value="1">默认: 均线对比均线</option>
+                                        <option value="2">当日均线比前一日均线</option>
+                                        <option value="3">当日价格比前一日价格</option>
+                                    </select>
+                                </p>
+                            </div>
+                        </section>
+                        <section>
+                            <div class="w100">
+                                <label>请选择上传文件，可以拖入：{{ $errors->first('fileText') }}</label>
+                                <p>
+                                    <input name="fileText" type="file" class="input-text" placeholder="请选择上传文件，可以拖入">
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="list-add-btn form-btn">
+                        <button id="addFormSubmit" class="btn btn-primary btn-lg ripple">提交</button>
+                        <button id="removeFormSubmit" class="btn btn-primary btn-lg ripple">关闭</button>
+                    </div>
+                </section>
+            </form>
+        </article>
+        <article class="list-content">
+            <h2>协议列表 <span></span></h2>
+            <section class="list-content-condition">
+                <ul class="list-control">
+                    <li>
+                        <select class="input-text">
+                            <option>所有条件</option>
+                            <option>条件一连续2天</option>
+                        </select>
+                        <input type="text" class="input-text">
+                        <a class="btn btn-primary btn-lg ripple">高级查询</a>
+                    </li>
+                    <li>
+                        <a class="iconfont icon-add">新增</a>
+                    </li>
+                    <li>
+                        <a class="iconfont icon-edit">修改</a>
+                    </li>
+                    <li>
+                        <a class="iconfont icon-continue">续签</a>
+                    </li>
+                    <li>
+                        <a class="iconfont icon-shanchu">删除</a>
+                    </li>
+                    <li>
+                        <a class="iconfont icon-sousuoleimu">查看明细</a>
+                    </li>
+                </ul>
+            </section>
+            <table class="list-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th><input type="checkbox"></th>
+                        <th>协议编号</th>
+                        <th>买方会员名称</th>
+                        <th>卖方会员名称</th>
+                        <th>第三方平台名称</th>
+                        <th>协议金额</th>
+                        <th>协议开始日</th>
+                        <th>协议到期日</th>
+                        <th>协议状态</th>
+                        <th>业务模式</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><input type="checkbox"></td>
+                        <td>XY16155454</td>
+                        <td>天天集团</td>
+                        <td>吕隆集团</td>
+                        <td>222</td>
+                        <td>CNY3,000.00</td>
+                        <td>2016-03-01</td>
+                        <td>2016-03-17</td>
+                        <td>
+                            <span>生效</span>
+                            <ul class="lamp-list">
+                                <li class="green"></li>
+                                <li class="green"></li>
+                                <li class="green"></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </td>
+                        <td>会员预付款</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><input type="checkbox"></td>
+                        <td>XY16155454</td>
+                        <td>天天集团</td>
+                        <td>吕隆集团</td>
+                        <td>222</td>
+                        <td>CNY3,000.00</td>
+                        <td>2016-03-01</td>
+                        <td>2016-03-17</td>
+                        <td>
+                            <span>生效</span>
+                            <ul class="lamp-list">
+                                <li class="blue"></li>
+                                <li class="blue"></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </td>
+                        <td>会员预付款</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><input type="checkbox"></td>
+                        <td>XY16155454</td>
+                        <td>天天集团</td>
+                        <td>吕隆集团</td>
+                        <td>222</td>
+                        <td>CNY3,000.00</td>
+                        <td>2016-03-01</td>
+                        <td>2016-03-17</td>
+                        <td>
+                            <span>生效</span>
+                            <ul class="lamp-list">
+                                <li class="green"></li>
+                                <li class="green"></li>
+                                <li class="green"></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </td>
+                        <td>会员预付款</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><input type="checkbox"></td>
+                        <td>XY16155454</td>
+                        <td>天天集团</td>
+                        <td>吕隆集团</td>
+                        <td>222</td>
+                        <td>CNY3,000.00</td>
+                        <td>2016-03-01</td>
+                        <td>2016-03-17</td>
+                        <td>
+                            <span>生效</span>
+                            <ul class="lamp-list">
+                                <li class="green"></li>
+                                <li class="green"></li>
+                                <li class="green"></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </td>
+                        <td>会员预付款</td>
+                    </tr>
+                    <tr>
+                        <td class="iconfont icon-new">5</td>
+                        <td><input type="checkbox"></td>
+                        <td>XY16155454</td>
+                        <td>天天集团</td>
+                        <td>吕隆集团</td>
+                        <td>222</td>
+                        <td>CNY3,000.00</td>
+                        <td>2016-03-01</td>
+                        <td>2016-03-17</td>
+                        <td>
+                            <span>生效</span>
+                            <ul class="lamp-list">
+                                <li class="blue"></li>
+                                <li class="blue"></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </td>
+                        <td>会员预付款</td>
+                    </tr>
+                </tbody>
+            </table>
+            <section class="list-content-page">
+                <span>
+                    第<input class="border-bottom-input" type="text" value="1" />共<em>1</em>页
+                </span>
+                <span>
+                    显示<em>1</em>到<em>5</em>，共<em>5</em>记录
+                </span>
+            </section>
+        </article>
+        <footer><span>YUNPHANT BLOCKCHAIN 2017</span></footer>
+    </main>
+</div>
 
+<div class="alter-layout" style=" display: none;">
+    <article class="log">
+        <ul>
+            <li><i></i><span>表单提交</span></li>
+            <li><i></i><span>交易转发</span></li>
+            <li><i></i><span>vp0接收交易请求</span></li>
+            <li><i></i><span>表单提交</span></li>
+            <li><i></i><span>vp0打包并分发交易请求</span></li>
+            <li><i></i><span>vp0接收交易请求</span></li>
+            <li><i></i><span>表单提交</span></li>
+            <li><i></i><span>vp0打包并分发交易请求</span></li>
+            <li><i></i><span>vp0接收交易请求</span></li>
+        </ul>
+    </article>
+    <article class="force">
+        <svg viewbox="-400 -400 800 800 " width="300" height="300">
+            <path id="links" stroke-width="5" stroke="gray"/>
+            <path id="dir" d="" fill="transparent" ></path>
+            <defs>
+                <filter id="f1" x="0" y="0" width="200%" height="200%">
+                    <feOffset result="SourceAlphaDeviated" in="SourceGraphic" dx="20" dy="20"/>
+                    <feOffset result="ShadowDeviated" in="SourceAlpha" dx="20" dy="20"/>
+                    <feGaussianBlur result="blurOut" in="ShadowDeviated" stdDeviation="8" />
+                    <feBlend in="SourceAlphaDeviated" in2="blurOut" mode="normal" />
+                </filter>
+            </defs>
+        </svg>
+    </article>
+</div>
 </body>
 </html>

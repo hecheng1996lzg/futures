@@ -18,14 +18,21 @@ class CountController extends Controller
 
     public $multiple = 10; //默认手数
 
-    public $max_continuity = 5; //默认连续10
-    public $max_average = 5;  //默认均线51
+    public $max_continuity = 10; //默认连续10
+    public $max_average = 51;  //默认均线51
 
     public function index(){
         return view('index');
     }
 
     public function calculation(Request $request){
+        $validator = \Validator::make($request->input(),[
+            'comparative_type' => 'required',
+        ]);
+        if($validator->fails() || !$request->hasFile('fileText')){
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
         /**
          * 初始化数据
          * 1、将文件读入数组
@@ -67,9 +74,18 @@ class CountController extends Controller
 
         $list = $this->createList($this->results,'百分比');
         $weightList = $this->createList($this->results_weight,'加权值');
+        $everyYear = $this->createListYear();
+
+        return view('table',[
+            'results'=>$this->results,
+            'results_weight'=>$this->results_weight,
+            'continuity'=>$this->max_continuity,
+            'average'=>$this->max_average,
+        ]);
+
         header( "Content-type: application/vnd.ms-excel; charset=gb2312" );
         header("Content-disposition:attachment;filename=text.csv");
-        echo mb_convert_encoding($list."\r\n".$weightList."\r\n".$this->createListYear(),'gb2312');
+        echo mb_convert_encoding($list."\r\n".$weightList."\r\n".$everyYear,'gb2312');
     }
 
 
@@ -85,13 +101,14 @@ class CountController extends Controller
         array_shift($data);
         array_pop($data);
 
+        $deal = new Deal();
         foreach ($data as $key=>$value){
             $row = explode(" ",$value);
-            $deal = new Deal();
             if($deal->getYear($row[0]) >= $this->min_year && $deal->getYear($row[0]) <= $this->max_year){
                 $this->data[] = $row;
             }
         }
+        unset($deal);
     }
 
     private function createList($data,$title){
