@@ -1,65 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/toggle_animation.css') }}" />
-    <script src="{{ asset('assets/js/jquery-1.7.1.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.form.js') }}"></script>
-    <script src="{{ asset('assets/js/line.js') }}"></script>
-    <script src="{{ asset('assets/js/vector.js') }}"></script>
-    <script src="{{ asset('assets/js/script.js') }}"></script>
-    <script src="{{ asset('assets/js/log.js') }}"></script>
-</head>
-<body>
-
-<header class="header">
-    <img class="logo" src="{{ asset('assets/images/logo.PNG') }}" alt=""/>
-    <menu>
-        <ul class="border-light border-light-bottom">
-            <li class="active">
-                <p class="iconfont icon-shouye"><a href="#"> 我的工作台</a></p>
-            </li>
-            <li>
-                <p class="iconfont icon-leimu"><a href="#"> 我的参数</a></p>
-            </li>
-            <li>
-                <p class="iconfont icon-bangzhuzhongxin"><a href="#"> 系统配置</a></p>
-            </li>
-        </ul>
-    </menu>
-    <div class="ucenter">
-        <img src="{{ asset('assets/images/user.jpg') }}" alt="">
-        <span>olaolaola</span>
-        <span>退出</span>
-    </div>
-</header>
-
-<div class="body">
-    <aside>
-<!--
-        <div class="user">
-            <img src="images/user.jpg" alt=""/>
-        </div>
--->
-        <ul class="sidebar">
-            <li>
-                <h3>系统功能</h3>
-                <ul class="border-light border-light-right">
-                    <li class="active">
-                        <p class="iconfont icon-duozhongzhifu">单纯价格系统</p>
-                    </li>
-                    <li>
-                        <p class="iconfont icon-duozhongzhifu">开发中...</p>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </aside>
-    <main>
+@extends('layout')
+@section('content')
         <article class="list-option">
             <form id="addForm"  method="post" enctype="multipart/form-data" action="{{ asset('count/index') }}">
                 <section class="list-add form-tab list-option-show">
@@ -77,13 +17,33 @@
                             <div>
                                 <label for="min_year">开始日期：</label>
                                 <p>
-                                    <input id="min_year" name="min_year" type="date" class="input-text" placeholder="请输入开始年份" value="2012" required>
+                                    <input id="min_year" name="min_year" type="date" class="input-text" placeholder="请输入开始年份" value="2012-01-01" required>
                                 </p>
                             </div>
                             <div>
                                 <label for="max_year">结束日期：</label>
                                 <p>
-                                    <input id="max_year" name="max_year" type="date" class="input-text" placeholder="请输入结束年份" value="2017" required>
+                                    <input id="max_year" name="max_year" type="date" class="input-text" placeholder="请输入结束年份" value="2017-12-31" required>
+                                </p>
+                            </div>
+                            <div>
+                                <label for="max_continuity">连续天数：</label>
+                                <p>
+                                    <input id="max_continuity" name="max_continuity" type="number" class="input-text" placeholder="请输入连续天数" value="10" required>
+                                </p>
+                            </div>
+                            <div>
+                                <label for="max_average">几日均线：</label>
+                                <p>
+                                    <input id="max_average" name="max_average" type="number" class="input-text" placeholder="请输入几日均线" value="51" required>
+                                </p>
+                            </div>
+                        </section>
+                        <section>
+                            <div class="w100">
+                                <label>请选择上传文件，可以拖入：{{ $errors->first('fileText') }}</label>
+                                <p>
+                                    <input name="fileText" type="file" class="input-text" placeholder="请选择上传文件，可以拖入">
                                 </p>
                             </div>
                             <div>
@@ -96,12 +56,10 @@
                                     </select>
                                 </p>
                             </div>
-                        </section>
-                        <section>
-                            <div class="w100">
-                                <label>请选择上传文件，可以拖入：{{ $errors->first('fileText') }}</label>
+                            <div>
+                                <label for="multiple">手数：</label>
                                 <p>
-                                    <input name="fileText" type="file" class="input-text" placeholder="请选择上传文件，可以拖入">
+                                    <input id="multiple" name="multiple" type="number" class="input-text" placeholder="请输入手数" value="10" required>
                                 </p>
                             </div>
                         </section>
@@ -118,200 +76,625 @@
             <section class="list-content-condition">
                 <ul class="list-control">
                     <li>
-                        <select class="input-text">
-                            <option>所有条件</option>
-                            <option>条件一连续2天</option>
-                        </select>
                         <input type="text" class="input-text">
-                        <a class="btn btn-primary btn-lg ripple">高级查询</a>
+                        <a class="btn btn-primary btn-lg ripple">保存选择</a>
                     </li>
+                    <li>买：<span>0</span></li>
+                    <li>卖：<span>0</span></li>
+                    <li>推荐操作：<span>无</span></li>
+                </ul>
+                <ul class="list-control">
+                    <li></li>
                     <li>
                         <a class="iconfont icon-add">新增</a>
                     </li>
                     <li>
-                        <a class="iconfont icon-edit">修改</a>
+                        <a class="iconfont icon-biaoxing">保存</a>
                     </li>
                     <li>
-                        <a class="iconfont icon-continue">续签</a>
-                    </li>
-                    <li>
-                        <a class="iconfont icon-shanchu">删除</a>
-                    </li>
-                    <li>
-                        <a class="iconfont icon-sousuoleimu">查看明细</a>
+                        <a class="iconfont icon-xiangshang5">导出</a>
                     </li>
                 </ul>
             </section>
+            <section style="overflow-x: scroll;">
             <table class="list-table">
                 <thead>
-                    <tr>
-                        <th></th>
-                        <th><input type="checkbox"></th>
-                        <th>协议编号</th>
-                        <th>买方会员名称</th>
-                        <th>卖方会员名称</th>
-                        <th>第三方平台名称</th>
-                        <th>协议金额</th>
-                        <th>协议开始日</th>
-                        <th>协议到期日</th>
-                        <th>协议状态</th>
-                        <th>业务模式</th>
-                    </tr>
+                <tr>
+                    <th></th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                    <th>8</th>
+                    <th>9</th>
+                    <th>10</th>
+                    <th>11</th>
+                    <th>12</th>
+                    <th>13</th>
+                    <th>14</th>
+                    <th>15</th>
+                    <th>16</th>
+                    <th>17</th>
+                    <th>18</th>
+                    <th>19</th>
+                    <th>20</th>
+                    <th>21</th>
+                    <th>22</th>
+                    <th>23</th>
+                    <th>24</th>
+                    <th>25</th>
+                    <th>26</th>
+                    <th>27</th>
+                    <th>28</th>
+                    <th>29</th>
+                    <th>30</th>
+                    <th>31</th>
+                    <th>32</th>
+                    <th>33</th>
+                    <th>34</th>
+                    <th>35</th>
+                    <th>36</th>
+                    <th>37</th>
+                    <th>38</th>
+                    <th>39</th>
+                    <th>40</th>
+                    <th>41</th>
+                    <th>42</th>
+                    <th>43</th>
+                    <th>44</th>
+                    <th>45</th>
+                    <th>46</th>
+                    <th>47</th>
+                    <th>48</th>
+                    <th>49</th>
+                    <th>50</th>
+                    <th>51</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td><input type="checkbox"></td>
-                        <td>XY16155454</td>
-                        <td>天天集团</td>
-                        <td>吕隆集团</td>
-                        <td>222</td>
-                        <td>CNY3,000.00</td>
-                        <td>2016-03-01</td>
-                        <td>2016-03-17</td>
-                        <td>
-                            <span>生效</span>
-                            <ul class="lamp-list">
-                                <li class="green"></li>
-                                <li class="green"></li>
-                                <li class="green"></li>
-                                <li></li>
-                                <li></li>
-                            </ul>
-                        </td>
-                        <td>会员预付款</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td><input type="checkbox"></td>
-                        <td>XY16155454</td>
-                        <td>天天集团</td>
-                        <td>吕隆集团</td>
-                        <td>222</td>
-                        <td>CNY3,000.00</td>
-                        <td>2016-03-01</td>
-                        <td>2016-03-17</td>
-                        <td>
-                            <span>生效</span>
-                            <ul class="lamp-list">
-                                <li class="blue"></li>
-                                <li class="blue"></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                            </ul>
-                        </td>
-                        <td>会员预付款</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td><input type="checkbox"></td>
-                        <td>XY16155454</td>
-                        <td>天天集团</td>
-                        <td>吕隆集团</td>
-                        <td>222</td>
-                        <td>CNY3,000.00</td>
-                        <td>2016-03-01</td>
-                        <td>2016-03-17</td>
-                        <td>
-                            <span>生效</span>
-                            <ul class="lamp-list">
-                                <li class="green"></li>
-                                <li class="green"></li>
-                                <li class="green"></li>
-                                <li></li>
-                                <li></li>
-                            </ul>
-                        </td>
-                        <td>会员预付款</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td><input type="checkbox"></td>
-                        <td>XY16155454</td>
-                        <td>天天集团</td>
-                        <td>吕隆集团</td>
-                        <td>222</td>
-                        <td>CNY3,000.00</td>
-                        <td>2016-03-01</td>
-                        <td>2016-03-17</td>
-                        <td>
-                            <span>生效</span>
-                            <ul class="lamp-list">
-                                <li class="green"></li>
-                                <li class="green"></li>
-                                <li class="green"></li>
-                                <li></li>
-                                <li></li>
-                            </ul>
-                        </td>
-                        <td>会员预付款</td>
-                    </tr>
-                    <tr>
-                        <td class="iconfont icon-new">5</td>
-                        <td><input type="checkbox"></td>
-                        <td>XY16155454</td>
-                        <td>天天集团</td>
-                        <td>吕隆集团</td>
-                        <td>222</td>
-                        <td>CNY3,000.00</td>
-                        <td>2016-03-01</td>
-                        <td>2016-03-17</td>
-                        <td>
-                            <span>生效</span>
-                            <ul class="lamp-list">
-                                <li class="blue"></li>
-                                <li class="blue"></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                            </ul>
-                        </td>
-                        <td>会员预付款</td>
-                    </tr>
+                <tr>
+                    <td>1</td>
+                    <td>5.85%</td>
+                    <td>98.73%</td>
+                    <td>108.15%</td>
+                    <td>105.04%</td>
+                    <td>75.8%</td>
+                    <td>46.8%</td>
+                    <td>49.46%</td>
+                    <td>45.16%</td>
+                    <td>37.83%</td>
+                    <td>25.96%</td>
+                    <td>12.77%</td>
+                    <td>22.66%</td>
+                    <td>24.56%</td>
+                    <td>46.04%</td>
+                    <td>38.97%</td>
+                    <td>31.78%</td>
+                    <td>-0.95%</td>
+                    <td>11.56%</td>
+                    <td>8.06%</td>
+                    <td>14.94%</td>
+                    <td>18.97%</td>
+                    <td>22.58%</td>
+                    <td>32.12%</td>
+                    <td>44.52%</td>
+                    <td>39.31%</td>
+                    <td>28.28%</td>
+                    <td>66.41%</td>
+                    <td>65.01%</td>
+                    <td>64.21%</td>
+                    <td>61.36%</td>
+                    <td>60.41%</td>
+                    <td>59.38%</td>
+                    <td>62.27%</td>
+                    <td>60.18%</td>
+                    <td>63.98%</td>
+                    <td>62.84%</td>
+                    <td>56.83%</td>
+                    <td>55.58%</td>
+                    <td>62.65%</td>
+                    <td>59.15%</td>
+                    <td>57.29%</td>
+                    <td>57.82%</td>
+                    <td>58.66%</td>
+                    <td>65.61%</td>
+                    <td>67.29%</td>
+                    <td>61.66%</td>
+                    <td>69.83%</td>
+                    <td>69.91%</td>
+                    <td>71.28%</td>
+                    <td>73.33%</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>32.73%</td>
+                    <td>68.35%</td>
+                    <td>14.67%</td>
+                    <td>37.07%</td>
+                    <td>22.39%</td>
+                    <td>36.95%</td>
+                    <td>46.87%</td>
+                    <td>27.11%</td>
+                    <td>43.72%</td>
+                    <td>24.06%</td>
+                    <td>29.46%</td>
+                    <td>53.41%</td>
+                    <td>-0.95%</td>
+                    <td>-37.86%</td>
+                    <td>-13.65%</td>
+                    <td>-20.98%</td>
+                    <td>-31.17%</td>
+                    <td>-30.15%</td>
+                    <td>-8.55%</td>
+                    <td>0.23%</td>
+                    <td>24.98%</td>
+                    <td>28.55%</td>
+                    <td>23.8%</td>
+                    <td>42.88%</td>
+                    <td>45.73%</td>
+                    <td>39%</td>
+                    <td>48.24%</td>
+                    <td>44.93%</td>
+                    <td>43.98%</td>
+                    <td>44.78%</td>
+                    <td>40.9%</td>
+                    <td>42.92%</td>
+                    <td>46.65%</td>
+                    <td>35.39%</td>
+                    <td>36.38%</td>
+                    <td>37.71%</td>
+                    <td>47.06%</td>
+                    <td>47.98%</td>
+                    <td>46.11%</td>
+                    <td>46.65%</td>
+                    <td>43.07%</td>
+                    <td>42.96%</td>
+                    <td>37.94%</td>
+                    <td>48.81%</td>
+                    <td>60.56%</td>
+                    <td>61.47%</td>
+                    <td>58.2%</td>
+                    <td>58.13%</td>
+                    <td>61.21%</td>
+                    <td>60.63%</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>-46.72%</td>
+                    <td>-38.36%</td>
+                    <td>-0.72%</td>
+                    <td>-2.85%</td>
+                    <td>0.84%</td>
+                    <td>-12.05%</td>
+                    <td>-6.92%</td>
+                    <td>67.33%</td>
+                    <td>65.04%</td>
+                    <td>66.83%</td>
+                    <td>61.89%</td>
+                    <td>71.24%</td>
+                    <td>45.5%</td>
+                    <td>46%</td>
+                    <td>36.11%</td>
+                    <td>34.63%</td>
+                    <td>31.51%</td>
+                    <td>34.52%</td>
+                    <td>36.08%</td>
+                    <td>35.39%</td>
+                    <td>28.36%</td>
+                    <td>30.56%</td>
+                    <td>31.36%</td>
+                    <td>19.54%</td>
+                    <td>66.72%</td>
+                    <td>67.21%</td>
+                    <td>66.26%</td>
+                    <td>57.02%</td>
+                    <td>53.15%</td>
+                    <td>53.18%</td>
+                    <td>52.65%</td>
+                    <td>47.41%</td>
+                    <td>49%</td>
+                    <td>45.31%</td>
+                    <td>59.15%</td>
+                    <td>59.08%</td>
+                    <td>64.59%</td>
+                    <td>64.28%</td>
+                    <td>60.71%</td>
+                    <td>60.6%</td>
+                    <td>57.86%</td>
+                    <td>60.22%</td>
+                    <td>56.61%</td>
+                    <td>65.27%</td>
+                    <td>64.28%</td>
+                    <td>65.35%</td>
+                    <td>60.9%</td>
+                    <td>72.23%</td>
+                    <td>72.23%</td>
+                    <td>72.23%</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>24.6%</td>
+                    <td>-12.96%</td>
+                    <td>22.39%</td>
+                    <td>25.28%</td>
+                    <td>34.48%</td>
+                    <td>79.72%</td>
+                    <td>73.26%</td>
+                    <td>61.09%</td>
+                    <td>56.99%</td>
+                    <td>29.99%</td>
+                    <td>12.2%</td>
+                    <td>19.01%</td>
+                    <td>28.74%</td>
+                    <td>25.13%</td>
+                    <td>24.22%</td>
+                    <td>24.94%</td>
+                    <td>24.37%</td>
+                    <td>30.15%</td>
+                    <td>25.39%</td>
+                    <td>27.83%</td>
+                    <td>42.84%</td>
+                    <td>51.17%</td>
+                    <td>50.37%</td>
+                    <td>60.14%</td>
+                    <td>67.33%</td>
+                    <td>65.61%</td>
+                    <td>61.74%</td>
+                    <td>61.78%</td>
+                    <td>61.24%</td>
+                    <td>58.13%</td>
+                    <td>59.95%</td>
+                    <td>55.27%</td>
+                    <td>68.73%</td>
+                    <td>68.81%</td>
+                    <td>74.7%</td>
+                    <td>75.23%</td>
+                    <td>71.66%</td>
+                    <td>71.24%</td>
+                    <td>68.5%</td>
+                    <td>70.86%</td>
+                    <td>74.62%</td>
+                    <td>75.54%</td>
+                    <td>74.55%</td>
+                    <td>74.78%</td>
+                    <td>77.86%</td>
+                    <td>77.86%</td>
+                    <td>77.86%</td>
+                    <td>89.53%</td>
+                    <td>89.53%</td>
+                    <td>89.53%</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>13.23%</td>
+                    <td>-0.08%</td>
+                    <td>-32.77%</td>
+                    <td>46.3%</td>
+                    <td>21.36%</td>
+                    <td>36.88%</td>
+                    <td>32.62%</td>
+                    <td>28.51%</td>
+                    <td>24.6%</td>
+                    <td>19.54%</td>
+                    <td>31.7%</td>
+                    <td>31.29%</td>
+                    <td>35.09%</td>
+                    <td>28.59%</td>
+                    <td>27.94%</td>
+                    <td>31.59%</td>
+                    <td>31.17%</td>
+                    <td>64.78%</td>
+                    <td>75.69%</td>
+                    <td>77.63%</td>
+                    <td>62.38%</td>
+                    <td>64.78%</td>
+                    <td>63.83%</td>
+                    <td>64.63%</td>
+                    <td>60.75%</td>
+                    <td>70.82%</td>
+                    <td>70.29%</td>
+                    <td>57.06%</td>
+                    <td>58.89%</td>
+                    <td>70.33%</td>
+                    <td>77.4%</td>
+                    <td>78.31%</td>
+                    <td>76.45%</td>
+                    <td>75.84%</td>
+                    <td>72.27%</td>
+                    <td>72.15%</td>
+                    <td>69.42%</td>
+                    <td>77.02%</td>
+                    <td>80.78%</td>
+                    <td>81.7%</td>
+                    <td>80.71%</td>
+                    <td>81.77%</td>
+                    <td>82.23%</td>
+                    <td>92.53%</td>
+                    <td>94.2%</td>
+                    <td>94.2%</td>
+                    <td>94.2%</td>
+                    <td>94.2%</td>
+                    <td>102.6%</td>
+                    <td>102.6%</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>95.61%</td>
+                    <td>12.32%</td>
+                    <td>26.38%</td>
+                    <td>49.27%</td>
+                    <td>42.5%</td>
+                    <td>21.78%</td>
+                    <td>22.54%</td>
+                    <td>9.5%</td>
+                    <td>3.57%</td>
+                    <td>-2.39%</td>
+                    <td>18.59%</td>
+                    <td>13.84%</td>
+                    <td>34.94%</td>
+                    <td>58.43%</td>
+                    <td>53.75%</td>
+                    <td>55.35%</td>
+                    <td>63.14%</td>
+                    <td>65.08%</td>
+                    <td>82.15%</td>
+                    <td>80.14%</td>
+                    <td>79.19%</td>
+                    <td>79.98%</td>
+                    <td>76.11%</td>
+                    <td>76.15%</td>
+                    <td>75.61%</td>
+                    <td>72.5%</td>
+                    <td>74.32%</td>
+                    <td>57.78%</td>
+                    <td>64.85%</td>
+                    <td>82.65%</td>
+                    <td>80.78%</td>
+                    <td>80.48%</td>
+                    <td>76.91%</td>
+                    <td>81.73%</td>
+                    <td>79%</td>
+                    <td>81.35%</td>
+                    <td>85.12%</td>
+                    <td>105.04%</td>
+                    <td>104.05%</td>
+                    <td>105.11%</td>
+                    <td>96.07%</td>
+                    <td>96.07%</td>
+                    <td>96.07%</td>
+                    <td>96.07%</td>
+                    <td>95.27%</td>
+                    <td>95.27%</td>
+                    <td>95.27%</td>
+                    <td>95.27%</td>
+                    <td>104.16%</td>
+                    <td>104.16%</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>93.59%</td>
+                    <td>13.88%</td>
+                    <td>36.99%</td>
+                    <td>36.15%</td>
+                    <td>38.81%</td>
+                    <td>6.77%</td>
+                    <td>48.13%</td>
+                    <td>44.36%</td>
+                    <td>24.22%</td>
+                    <td>21.14%</td>
+                    <td>22.7%</td>
+                    <td>19.81%</td>
+                    <td>48.58%</td>
+                    <td>53.22%</td>
+                    <td>58.28%</td>
+                    <td>81.58%</td>
+                    <td>93.18%</td>
+                    <td>91.16%</td>
+                    <td>90.21%</td>
+                    <td>91.01%</td>
+                    <td>87.13%</td>
+                    <td>87.17%</td>
+                    <td>86.64%</td>
+                    <td>83.52%</td>
+                    <td>85.34%</td>
+                    <td>86.68%</td>
+                    <td>93.75%</td>
+                    <td>93.67%</td>
+                    <td>91.81%</td>
+                    <td>92.34%</td>
+                    <td>88.77%</td>
+                    <td>88.35%</td>
+                    <td>85.61%</td>
+                    <td>110.02%</td>
+                    <td>113.78%</td>
+                    <td>114.69%</td>
+                    <td>105.8%</td>
+                    <td>114.77%</td>
+                    <td>106.82%</td>
+                    <td>98.92%</td>
+                    <td>98.92%</td>
+                    <td>98.92%</td>
+                    <td>98.92%</td>
+                    <td>98.92%</td>
+                    <td>97.81%</td>
+                    <td>98.88%</td>
+                    <td>98.88%</td>
+                    <td>98.88%</td>
+                    <td>104.77%</td>
+                    <td>102.98%</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>0%</td>
+                    <td>-2.17%</td>
+                    <td>80.02%</td>
+                    <td>79.72%</td>
+                    <td>60.56%</td>
+                    <td>58.2%</td>
+                    <td>59.49%</td>
+                    <td>56.34%</td>
+                    <td>57.9%</td>
+                    <td>61.47%</td>
+                    <td>29.65%</td>
+                    <td>51.47%</td>
+                    <td>79.34%</td>
+                    <td>61.89%</td>
+                    <td>63.83%</td>
+                    <td>61.81%</td>
+                    <td>67.1%</td>
+                    <td>67.9%</td>
+                    <td>64.02%</td>
+                    <td>64.06%</td>
+                    <td>63.52%</td>
+                    <td>60.41%</td>
+                    <td>62.23%</td>
+                    <td>63.56%</td>
+                    <td>72.99%</td>
+                    <td>72.99%</td>
+                    <td>68.69%</td>
+                    <td>69.23%</td>
+                    <td>65.65%</td>
+                    <td>65.54%</td>
+                    <td>62.8%</td>
+                    <td>70.4%</td>
+                    <td>74.17%</td>
+                    <td>93.71%</td>
+                    <td>93.71%</td>
+                    <td>93.71%</td>
+                    <td>76.83%</td>
+                    <td>93.71%</td>
+                    <td>93.71%</td>
+                    <td>76.83%</td>
+                    <td>76.83%</td>
+                    <td>76.83%</td>
+                    <td>76.83%</td>
+                    <td>76.83%</td>
+                    <td>86.52%</td>
+                    <td>106.67%</td>
+                    <td>90.48%</td>
+                    <td>90.48%</td>
+                    <td>90.17%</td>
+                    <td>90.25%</td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>0%</td>
+                    <td>98.08%</td>
+                    <td>97.55%</td>
+                    <td>91.16%</td>
+                    <td>102.03%</td>
+                    <td>102.03%</td>
+                    <td>103.59%</td>
+                    <td>102.91%</td>
+                    <td>98.16%</td>
+                    <td>67.06%</td>
+                    <td>67.86%</td>
+                    <td>69.87%</td>
+                    <td>69.07%</td>
+                    <td>66.98%</td>
+                    <td>75.69%</td>
+                    <td>76.49%</td>
+                    <td>71.09%</td>
+                    <td>71.13%</td>
+                    <td>70.59%</td>
+                    <td>67.48%</td>
+                    <td>69.3%</td>
+                    <td>70.63%</td>
+                    <td>77.44%</td>
+                    <td>77.44%</td>
+                    <td>77.44%</td>
+                    <td>77.44%</td>
+                    <td>72.72%</td>
+                    <td>72.61%</td>
+                    <td>69.87%</td>
+                    <td>72.23%</td>
+                    <td>77.44%</td>
+                    <td>95.57%</td>
+                    <td>95.57%</td>
+                    <td>95.57%</td>
+                    <td>95.57%</td>
+                    <td>95.57%</td>
+                    <td>78.84%</td>
+                    <td>95.57%</td>
+                    <td>95.57%</td>
+                    <td>78.84%</td>
+                    <td>78.84%</td>
+                    <td>78.84%</td>
+                    <td>78.84%</td>
+                    <td>78.84%</td>
+                    <td>78.88%</td>
+                    <td>73.86%</td>
+                    <td>73.86%</td>
+                    <td>73.86%</td>
+                    <td>81.66%</td>
+                    <td>82.46%</td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>0%</td>
+                    <td>92.72%</td>
+                    <td>89.22%</td>
+                    <td>89.22%</td>
+                    <td>88.39%</td>
+                    <td>87.7%</td>
+                    <td>100.89%</td>
+                    <td>103.33%</td>
+                    <td>104.12%</td>
+                    <td>86.98%</td>
+                    <td>93.48%</td>
+                    <td>112.91%</td>
+                    <td>111.96%</td>
+                    <td>112.75%</td>
+                    <td>105.46%</td>
+                    <td>105.49%</td>
+                    <td>86.94%</td>
+                    <td>110.21%</td>
+                    <td>112.03%</td>
+                    <td>113.36%</td>
+                    <td>101.92%</td>
+                    <td>101.92%</td>
+                    <td>101.92%</td>
+                    <td>101.92%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>89.41%</td>
+                    <td>91.77%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.73%</td>
+                    <td>78.84%</td>
+                    <td>70.33%</td>
+                    <td>70.33%</td>
+                    <td>70.33%</td>
+                    <td>80.06%</td>
+                    <td>70.37%</td>
+                </tr>
                 </tbody>
             </table>
+            </section>
             <section class="list-content-page">
                 <span>
                     第<input class="border-bottom-input" type="text" value="1" />共<em>1</em>页
                 </span>
                 <span>
-                    显示<em>1</em>到<em>5</em>，共<em>5</em>记录
+                    显示<em>1</em>到<em>10</em>，共<em>10</em>记录
                 </span>
             </section>
         </article>
         <footer><span>YUNPHANT BLOCKCHAIN 2017</span></footer>
-    </main>
-</div>
-
-<div class="alter-layout" style=" display: none;">
-    <article class="log">
-        <ul>
-            <li><i></i><span>表单提交</span></li>
-            <li><i></i><span>交易转发</span></li>
-            <li><i></i><span>vp0接收交易请求</span></li>
-            <li><i></i><span>表单提交</span></li>
-            <li><i></i><span>vp0打包并分发交易请求</span></li>
-            <li><i></i><span>vp0接收交易请求</span></li>
-            <li><i></i><span>表单提交</span></li>
-            <li><i></i><span>vp0打包并分发交易请求</span></li>
-            <li><i></i><span>vp0接收交易请求</span></li>
-        </ul>
-    </article>
-    <article class="force">
-        <svg viewbox="-400 -400 800 800 " width="300" height="300">
-            <path id="links" stroke-width="5" stroke="gray"/>
-            <path id="dir" d="" fill="transparent" ></path>
-            <defs>
-                <filter id="f1" x="0" y="0" width="200%" height="200%">
-                    <feOffset result="SourceAlphaDeviated" in="SourceGraphic" dx="20" dy="20"/>
-                    <feOffset result="ShadowDeviated" in="SourceAlpha" dx="20" dy="20"/>
-                    <feGaussianBlur result="blurOut" in="ShadowDeviated" stdDeviation="8" />
-                    <feBlend in="SourceAlphaDeviated" in2="blurOut" mode="normal" />
-                </filter>
-            </defs>
-        </svg>
-    </article>
-</div>
-</body>
-</html>
+@stop

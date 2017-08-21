@@ -13,8 +13,10 @@ class CountController extends Controller
     public $results_weight = []; //最后结果的加权值
     public $results_year_detail = []; //按连续几日分类，年份和均线详细信息
 
-    public $min_year = 2012; //初始年份
-    public $max_year = 2017; //最大年份
+    public $min_year = 2012; //默认初始年份
+    public $max_year = 2017; //默认最大年份
+    public $min_date = '2012-01-01'; //默认初始年份时间戳
+    public $max_date = '2018-01-01'; //默认最大年份时间戳
 
     public $multiple = 10; //默认手数
 
@@ -40,8 +42,13 @@ class CountController extends Controller
          */
         $path = $_FILES['fileText']['tmp_name'];
 
-        $this->min_year = $request->input('min_year');
-        $this->max_year = $request->input('max_year');
+        $deal = new Deal();
+        $this->min_year = $deal->getYear($request->input('min_year'));
+        $this->max_year = $deal->getYear($request->input('max_year'));
+        unset($deal);
+
+        $this->min_date = strtotime($request->input('min_year'));
+        $this->max_date = strtotime($request->input('max_year'));
         $this->initialData($path);
 
         /**
@@ -101,14 +108,13 @@ class CountController extends Controller
         array_shift($data);
         array_pop($data);
 
-        $deal = new Deal();
         foreach ($data as $key=>$value){
             $row = explode(" ",$value);
-            if($deal->getYear($row[0]) >= $this->min_year && $deal->getYear($row[0]) <= $this->max_year){
+            $row_time = strtotime($row[0]);
+            if($row_time >= $this->min_date && $row_time <= $this->max_date){
                 $this->data[] = $row;
             }
         }
-        unset($deal);
     }
 
     private function createList($data,$title){
