@@ -29,7 +29,7 @@ class CountController extends Controller
 
     public function calculation(Request $request){
         $validator = \Validator::make($request->input(),[
-            'comparative_type' => 'required',
+            '*' => 'required',
         ]);
         if($validator->fails() || !$request->hasFile('fileText')){
             return redirect()->back()->withErrors($validator)->withInput();
@@ -40,6 +40,10 @@ class CountController extends Controller
          * 1、将文件读入数组
          * 2、记录参数
          */
+        $this->multiple = $request->input('multiple');
+        $this->max_continuity = $request->input('max_continuity');
+        $this->max_average = $request->input('max_average');
+
         $path = $_FILES['fileText']['tmp_name'];
 
         $deal = new Deal();
@@ -82,6 +86,7 @@ class CountController extends Controller
         $list = $this->createList($this->results,'百分比');
         $weightList = $this->createList($this->results_weight,'加权值');
         $everyYear = $this->createListYear();
+        $request->session()->put('download', $list."\r\n".$weightList."\r\n".$everyYear);
 
         return view('table',[
             'results'=>$this->results,
@@ -89,10 +94,12 @@ class CountController extends Controller
             'continuity'=>$this->max_continuity,
             'average'=>$this->max_average,
         ]);
+    }
 
+    public function download(Request $request){
         header( "Content-type: application/vnd.ms-excel; charset=gb2312" );
         header("Content-disposition:attachment;filename=text.csv");
-        echo mb_convert_encoding($list."\r\n".$weightList."\r\n".$everyYear,'gb2312');
+        echo mb_convert_encoding($request->session()->get('download'),'gb2312');
     }
 
 
@@ -165,3 +172,5 @@ class CountController extends Controller
         return $str;
     }
 }
+
+

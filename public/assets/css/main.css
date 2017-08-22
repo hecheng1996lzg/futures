@@ -229,6 +229,10 @@ h2{
     margin-right: 50px;
 }
 
+.list-control>li:first-child a{
+    margin-right:10px;
+}
+
 .list-control>li:first-child input{
     margin-right:20px;
 }
@@ -258,9 +262,20 @@ h2{
     background: rgba(43,45,66,0.3);
 }
 
-.list-content .list-table tbody tr:hover{
+.list-content .list-table tbody tr.active{
     background: rgba(43,45,66,1);
     box-shadow: 0 0 10px rgba(0,0,0,.3) inset;
+}
+
+.list-content .list-table tbody td.active{
+    background: rgba(43,45,66,1);
+}
+
+.list-content .list-table tbody td.select-right{
+    background: #9e0000;
+}
+.list-content .list-table tbody td.select-error{
+    background: #005800;
 }
 
 .list-table tbody tr td:nth-of-type(10){
@@ -282,10 +297,6 @@ h2{
     border-bottom: 1px solid rgba(255,255,255,.4);
     text-align: left;
     text-indent: 6px;
-}
-
-.list-table tbody tr:hover{
-    background: none;
 }
 
 .list-table tbody td:last-child{

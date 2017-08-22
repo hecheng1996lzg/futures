@@ -68,6 +68,10 @@ em{
     font-style: normal;
 }
 
+.hidden{
+    display: none;
+}
+
 /*波浪按钮*/
 .btn{
     font-size: 12px;

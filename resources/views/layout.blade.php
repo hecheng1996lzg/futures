@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/toggle_animation.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/iconfont.css') }}" />
     <script src="{{ asset('assets/script/jquery-3.1.1.js') }}"></script>
+    <script src="{{ asset('assets/script/select.js') }}"></script>
     <script src="{{ asset('assets/script/script.js') }}"></script>
 </head>
 <body>
@@ -57,6 +58,7 @@
     </aside>
     <main>
         @yield('content')
+        <footer><span>YUNPHANT BLOCKCHAIN 2017</span></footer>
     </main>
 </div>
 

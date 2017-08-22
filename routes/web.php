@@ -11,6 +11,9 @@
 |
 */
 
-Route::get('/', 'CountController@index');
-Route::get('index', 'CountController@index');
-Route::post('count/index', 'CountController@calculation');
+Route::any('/', 'CountController@index');
+Route::any('index', 'CountController@index');
+
+Route::any('download', 'CountController@download');
+
+Route::any('count/index', 'CountController@calculation');

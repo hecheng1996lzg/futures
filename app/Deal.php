@@ -93,7 +93,7 @@ class Deal extends Model
                 $this->countYearTotal();
             }
         }
-        return round(array_sum($this->total)*100,2).'%';
+        return round(array_sum($this->total)*100,2);
     }
 
     /**
