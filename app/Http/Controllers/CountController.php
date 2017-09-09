@@ -74,7 +74,66 @@ class CountController extends Controller
         for($i=1; $i<=$this->max_continuity; $i++){
             for($j=2; $j<=$this->max_average; $j++){
                 $deal = new Deal($this->data, $i, $j, $this->multiple, $comparative_type);
-                $this->results[$i][$j] = $deal->countProfit_Percentage();
+                $this->results[$i][$j] = $deal->countProfit_margin();
+                unset($deal);
+            }
+        }
+
+        return view('table',[
+            'results'=>$this->results,
+            'continuity'=>$this->max_continuity,
+            'average'=>$this->max_average,
+        ]);
+    }
+
+    public function calculation2(Request $request){
+        $validator = \Validator::make($request->input(),[
+            '*' => 'required',
+        ]);
+        if($validator->fails() || !$request->hasFile('fileText')){
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        /**
+         * 初始化数据
+         * 1、将文件读入数组
+         * 2、记录参数
+         */
+        $this->multiple = $request->input('multiple');
+        $this->max_continuity = $request->input('max_continuity');
+        $this->max_average = $request->input('max_average');
+
+        $path = $_FILES['fileText']['tmp_name'];
+
+        $deal = new Deal();
+        $this->min_year = $deal->getYear($request->input('min_year'));
+        $this->max_year = $deal->getYear($request->input('max_year'));
+        unset($deal);
+
+        $this->min_date = strtotime($request->input('min_year'));
+        $this->max_date = strtotime($request->input('max_year'));
+        $this->initialData($path);
+
+        /**
+         * 参数不同对比情况，决定是否进行买卖操作
+         * 1、将当日与前几日均线对比，且连续几天
+         * 2、将当日均线与前几日均线对比，且连续几天
+         * 3、将当日与昨天对比，且连续几天
+         **/
+        $comparative_type = $request->input('comparative_type'); //对比方式
+        switch ($comparative_type){
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                $this->max_average = 2;
+                break;
+        }
+        for($i=1; $i<=$this->max_continuity; $i++){
+            for($j=2; $j<=$this->max_average; $j++){
+                $deal = new Deal($this->data, $i, $j, $this->multiple, $comparative_type);
+                $this->results[$i][$j] = $deal->countProfit_percentage();
                 $this->results_weight[$i][$j] = $deal->prevailingThanAverage_Weight();
                 foreach ($deal->total as $key=>$value){
                     $this->results_year_detail[$i][$key][$j] = $value;
@@ -94,6 +153,7 @@ class CountController extends Controller
             'continuity'=>$this->max_continuity,
             'average'=>$this->max_average,
         ]);
+
     }
 
     public function download(Request $request){
