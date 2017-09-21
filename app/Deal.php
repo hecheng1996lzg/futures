@@ -95,66 +95,7 @@ class Deal extends Model
         }
         return round(array_sum($this->total)*100,2);
     }
-
-    /**
-     * 遍历范围内日期，计算最后一次交易与上一次的差
-     **/
-    public function countProfit_margin(){
-        foreach ($this->data as $key=>$value){
-            $year = $this->getYear($value[0]);
-            /**
-             * 计算当日是否满足条件。
-             **/
-            if($this->continuity+$this->average-2<=$key){
-                /**
-                 * 根据比较类型，进行不同计算当天是
-                 * true:卖 ; false：买 ; --：无结果
-                 */
-                switch ($this->comparative_type){
-                    case 1: //将当日与前几日均线对比，且连续几天
-                        $bool = $this->isMoreAverage($key);
-                        break;
-                    case 2: //将当日均线与前几日均线对比，且连续几天
-                        $bool = $this->isMoreYesterdayAverage($key);
-                        break;
-                    case 3: //将当日与昨天对比，且连续几天
-                        $bool = $this->isMoreYesterdayPrice($key);
-                        break;
-                }
-            }else{
-                // 前几日不构成连续几日平均值的条件，直接为--
-                $bool = '--';
-            }
-
-            $operation = $this->setContinuityArr($bool);
-
-            /**
-             * 满足交易条件首先操作结果不能为--
-             **/
-            if($operation!=='--'){
-                /*
-                 * 第一次开始交易 或 与之前交易操作相反
-                 * */
-                if($this->deal_state===null || $bool !== $this->deal_state){
-                    $this->saveCalculation($value,$bool);
-                }
-            }
-
-            /**
-             * 最后一个值进行结束计算
-             * 结束计算：以当前价格卖掉或买入手上的商品
-             **/
-            if($key+1 == count($this->data)){
-                if($this->deal_state){
-                    return $this->deal_number - $value[1];
-                }else{
-                    return $value[1] - $this->deal_number;
-                }
-            }
-        }
-        return 'error';
-
-    }
+    
 
     /**
      * 参数：$value ：一条数据
