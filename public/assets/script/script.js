@@ -23,5 +23,12 @@ $(function () {
     var Select = new select();
     Select.init();
 
-
+    $('.border-light-right>li').click(function () {
+        $(this).parents('.sidebar').find('li').removeClass('active');
+        $(this).addClass('active');
+        if($(this).children('ul').length!=0){
+            $(this).find('.icon-xiangxia2').toggleClass('down');
+            $(this).children('ul').slideToggle();
+        }
+    })
 })

@@ -18,7 +18,12 @@ class CreateVarietiesTable extends Migration
             $table->timestamps();
 
             $table->string('name');
-            $table->string('update');
+            $table->string('min_date');
+            $table->string('max_date');
+            $table->integer('continuity');
+            $table->integer('average');
+            $table->enum('comparative_type',[1,2,3]);
+            $table->integer('multiple');
         });
     }
 

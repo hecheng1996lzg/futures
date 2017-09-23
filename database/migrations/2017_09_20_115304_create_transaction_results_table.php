@@ -21,7 +21,6 @@ class CreateTransactionResultsTable extends Migration
 
             $table->integer('continuity');
             $table->integer('average');
-            $table->double('value',12,3);
 
             $table->foreign('variety_id')->references('id')->on('varieties');
         });

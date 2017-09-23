@@ -122,3 +122,13 @@
         transform: translateX(0px);
     }
 }
+
+
+/*左侧栏箭头*/
+.icon-xiangxia2{
+    transform: rotate(-90deg);
+    transition:all 0.3s ease;
+}
+.icon-xiangxia2.down{
+    transform: rotate(0deg);
+}

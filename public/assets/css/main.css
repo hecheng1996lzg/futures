@@ -110,7 +110,11 @@ menu ul li{
 .sidebar>li>ul>li>ul{
     background: #272632;
     box-shadow: 0 5px 4px -3px rgba(0,0,0,.1) inset;
-    width: 100%;
+    font-weight: normal;
+}
+
+.sidebar>li>ul>li>ul>li.active p{
+    background: rgba(28,73,114,0.7);
 }
 
 .sidebar ul li p:hover{
@@ -188,7 +192,7 @@ h2{
 
 .list-content{
     position: relative;
-    margin: 0px 50px 66px;
+    margin: 66px;
     background: #363C52;
 }
 
@@ -393,4 +397,22 @@ svg circle.active{
 /* index覆盖 */
 .form-btn button:first-child{
     margin-right:20px;
+}
+
+
+/* 自己添加的 */
+.welcome{
+    text-align: center;
+}
+
+.welcome h1{
+    color: white;
+    padding:20px;
+    margin: 300px 200px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+}
+
+.welcome h2{
+    color: white;
+    border: none;
 }

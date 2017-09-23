@@ -11,9 +11,37 @@
 |
 */
 
-Route::any('/', 'CountController@index');
-Route::any('index', 'CountController@index');
+/**
+ * 欢迎页
+ **/
+Route::any('/', 'IndexController@index'); //显示主页
+Route::any('/index', 'IndexController@index'); //显示主页
 
-Route::any('download', 'CountController@download');
 
-Route::any('count/index', 'CountController@calculation');
+/**
+ * 品种
+ * △显示新增页面
+ * △新增操作
+ * △显示更新页面
+ * △更新一个数据
+ * △更新所有
+ * △显示一个品种
+ **/
+Route::group([],function (){
+    Route::get('variety/add','VarietyController@create');               //显示新增页面
+    Route::post('variety/add','VarietyController@store');               //新增操作
+    Route::get('variety/update','VarietyController@edit');              //显示更新页面
+    Route::post('variety/update','VarietyController@update');           //更新一个数据
+    Route::post('variety/update/all','VarietyController@update_all');   //更新所有
+    Route::any('variety/{id}','VarietyController@show');                //显示一个数据
+});
+
+/**
+ * 下载
+ **/
+Route::any('/download', 'IndexController@download'); //下载
+
+/**
+ * 保存选择区域
+ **/
+Route::any('/selection', 'IndexController@selection'); //保存选择区域
