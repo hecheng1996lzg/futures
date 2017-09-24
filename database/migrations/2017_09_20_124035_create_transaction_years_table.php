@@ -18,11 +18,12 @@ class CreateTransactionYearsTable extends Migration
             $table->timestamps();
 
             $table->unsignedInteger('results_id');
+            $table->unsignedInteger('year_id');
 
-            $table->string('year');
             $table->double('value',12,3);
 
             $table->foreign('results_id')->references('id')->on('transaction_results');
+            $table->foreign('year_id')->references('id')->on('years');
         });
     }
 

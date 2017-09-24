@@ -18,7 +18,7 @@ class CreateTransactionLastTable extends Migration
             $table->timestamps();
             $table->unsignedInteger('results_id');
 
-            $table->string('year');
+            $table->string('datetime');
             $table->double('value',12,3);
             $table->enum('type',['1','2']); //1买；2卖
 

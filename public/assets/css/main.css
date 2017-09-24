@@ -416,3 +416,7 @@ svg circle.active{
     color: white;
     border: none;
 }
+
+.list-add-content li{
+    color: #f5f5f5;
+}

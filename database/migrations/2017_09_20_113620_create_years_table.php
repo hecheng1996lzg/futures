@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSelectionsTable extends Migration
+class CreateYearsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,14 @@ class CreateSelectionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('selections', function (Blueprint $table) {
+        Schema::create('years', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
+
             $table->unsignedInteger('variety_id');
 
-            $table->string('range');
-            $table->string('datetime');
-            $table->integer('number_count');
-            $table->integer('number_buy');
-            $table->integer('number_sell');
-            $table->integer('operation');
+            $table->integer('year');
+            $table->double('initial_capital',12,3);
 
             $table->foreign('variety_id')->references('id')->on('varieties');
         });
@@ -36,6 +33,6 @@ class CreateSelectionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('selections');
+        Schema::dropIfExists('years');
     }
 }

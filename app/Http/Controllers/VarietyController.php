@@ -96,23 +96,24 @@ class VarietyController extends Controller
         }
         DB::commit();
 
-        $list = $this->createList($this->results,'百分比');
-        $weightList = $this->createList($this->results_weight,'加权值');
-        $everyYear = $this->createListYear();
-        $request->session()->put('download', $list."\r\n".$weightList."\r\n".$everyYear);
+        /**
+         * 上传文件,使用iconv 防止中文乱码
+         **/
+        $name = $_FILES["fileText"]["name"];
+        $name=iconv("UTF-8","gb2312", $name);
+        $test = move_uploaded_file($path,'../txt_resource/'.$name);
+        $name=iconv("gb2312","UTF-8", $name);
 
-        return view('table',[
-            'results'=>$this->results,
-            'results_weight'=>$this->results_weight,
-            'continuity'=>$this->max_continuity,
-            'average'=>$this->max_average,
-        ]);
+        return redirect('variety/'.$variety->id);
     }
 
     public function show($id){
         $variety = Variety::find($id);
         return view('variety.index',['variety'=>$variety]);
-        dd();
+    }
+
+    public function edit(){
+        return view('variety.edit');
     }
 
     /**

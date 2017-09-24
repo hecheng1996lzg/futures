@@ -30,6 +30,7 @@ class Transaction_result extends Model
     public $deal_number; //储存着上一次交易的价格
 
     public $transaction_last_arr = []; // 年份，类型，值
+    public $variety_year = []; //年份数据
 
     public $test_num = 0; //调试用
     public $test_array = []; //调试用
@@ -91,7 +92,7 @@ class Transaction_result extends Model
              **/
             if($year != $this->prev_year){
                 $this->countYearTotal();  //总结去年的盈利
-                $this->resetInitialCapital($value[1]);  //计算今年的初始资金
+                $this->resetInitialCapital($value[1],$year);  //计算今年的初始资金
                 $this->prev_year = $year;
                 $this->prev_num = 0;
             }
@@ -112,17 +113,55 @@ class Transaction_result extends Model
             }
 
             /**
-             * 最后一个值进行结束计算 && 并且没有年度清算，不存在total中 && 没有进行正常交易
+             * 最后一个值进行结束计算 && 并且没有年度清算，不存在total中 &&
              * 结束计算：以当前价格卖掉或买入手上的商品
              **/
-            if($key+1 == count($this->data) && !array_key_exists($year,$this->total) && $this->transaction_last_arr[0]!=$dateTime){
+            if($key+1 == count($this->data) && !array_key_exists($year,$this->total)){
                 $this->prev_year = $year;
-                $this->calculationTotal($value, !$this->deal_state);
+
+                /* 没有进行正常交易 */
+                if($this->transaction_last_arr[0]!=$dateTime){
+                    $this->calculationTotal($value, !$this->deal_state);
+                }
                 $this->countYearTotal();
             }
         }
+
+        /* 产品对应年份初始数据只需要保存一次 */
+        $variety_year_data = Year::where('variety_id',$this->variety_id)->count();
+        if(!$variety_year_data){
+            $this->setVariety_year($this->variety_year);
+        }
+        $this->setVariety_year_id($this->variety_year);
+
         $this->setTransaction_year($this->total);
         $this->setTransaction_last($this->transaction_last_arr);
+
+    }
+
+    /**
+     * 将$variety_year 值 转为 对应id
+     **/
+    private function setVariety_year_id($data){
+        foreach ($data as $key => $value) {
+            $year = Year::where([
+                'variety_id'=>$this->variety_id,
+                'year'=>$key,
+            ])->first();
+            $this->variety_year[$key] = $year->id;
+        }
+    }
+    /**
+     * 写入各年份初始资金
+     **/
+    private function setVariety_year($data){
+        foreach ($data as $key=>$value){
+            $year = new Year();
+            $year->variety_id = $this->variety_id;
+            $year->year = $key;
+            $year->initial_capital = $value;
+            $year->save();
+        }
     }
 
     /**
@@ -132,11 +171,11 @@ class Transaction_result extends Model
         foreach ($data as $key=>$value){
             $transaction_year = Transaction_year::where([
                     'results_id'=>$this->id,
-                    'year'=>$key
+                    'year_id'=>$this->variety_year[$key]
                 ])->first();
             $transaction_year = $transaction_year? $transaction_year:new Transaction_year();
             $transaction_year->results_id = $this->id;
-            $transaction_year->year = $key;
+            $transaction_year->year_id = $this->variety_year[$key];
             $transaction_year->value = $value;
             $transaction_year->save();
         }
@@ -227,8 +266,9 @@ class Transaction_result extends Model
      * 计算年份初始资金
      * 第一天的收盘价 × 手数 × 25%
      **/
-    private function resetInitialCapital($price){
+    private function resetInitialCapital($price,$year){
         $this->initial_capital =  $price * $this->multiple * 0.25;
+        $this->variety_year[$year] = $this->initial_capital;
     }
 
     /**
