@@ -17,7 +17,7 @@
             <ul class="list-control">
                 <li></li>
                 <li>
-                    <a class="iconfont icon-add">新增</a>
+                    <a href="{{ asset('variety/update') }}" class="iconfont icon-add">新增</a>
                 </li>
                 <li>
                     <a class="iconfont icon-biaoxing">保存</a>
@@ -42,8 +42,14 @@
                     <tr>
                         <td>{{ $i }}</td>
                         @for($j = 2; $j <= $variety->average; $j++)
-                            <?php $v = App\Transaction_result::where(['variety_id'=>$variety->id,'continuity'=>$i,'average'=>$j])->first()->transaction_years->sum('value') ?>
-                            <td style="color: {{ $v<0? 'rgb(0,255,0)':'rgb(255,255,255)' }};">{{ $v }}%</td>
+                            <?php
+                            $num = 0;
+                            $v = App\Trading_term::where(['variety_id'=>$variety->id,'continuity'=>$i,'average'=>$j])->first();
+                            foreach($v->year()->get() as $value){
+                                $num += $value->pivot->value;
+                            }
+                            ?>
+                            <td style="color: {{ $num<0? 'rgb(0,255,0)':'rgb(255,255,255)' }};">{{ $num*100 }}%</td>
                         @endfor
                     </tr>
                 @endfor

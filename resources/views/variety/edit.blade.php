@@ -1,7 +1,7 @@
 @extends('layouts.layout1')
 @section('content')
     <article class="list-option">
-        <form id="addForm"  method="post" enctype="multipart/form-data" action="{{ asset('variety/add') }}">
+        <form id="addForm"  method="post" enctype="multipart/form-data" action="{{ asset('variety/update') }}">
             <section class="list-add form-tab list-option-show">
                 <h2>
                     <span>{{ $variety or '' }}文件更新</span>

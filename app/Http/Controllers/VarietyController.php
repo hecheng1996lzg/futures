@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Trading_term;
 use App\Transaction_result;
 use App\Variety;
+use App\Variety_data;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -31,13 +33,13 @@ class VarietyController extends Controller
     }
 
     public function store(Request $request){
+        /* 参数验证 */
         $validator = \Validator::make($request->input(),[
             '*' => 'required',
         ]);
         if($validator->fails() || !$request->hasFile('fileText')){
             return redirect()->back()->withErrors($validator)->withInput();
         }
-
         /**
          * 初始化数据
          * 1、将文件读入数组
@@ -46,17 +48,81 @@ class VarietyController extends Controller
         $this->multiple = $request->input('multiple');
         $this->max_continuity = $request->input('max_continuity');
         $this->max_average = $request->input('max_average');
-
-        $path = $_FILES['fileText']['tmp_name'];
-
-        DB::beginTransaction();
-        $variety = new Variety();
-        $this->min_year = $variety->getYear($request->input('min_year'));
-        $this->max_year = $variety->getYear($request->input('max_year'));
-
         $this->min_date = strtotime($request->input('min_year'));
         $this->max_date = strtotime($request->input('max_year'));
-        $this->initialData($path);
+
+        /**
+         * 参数不同对比情况，决定是否进行买卖操作
+         * 1、将当日与前几日均线对比，且连续几天
+         * 2、将当日均线与前几日均线对比，且连续几天
+         * 3、将当日与昨天对比，且连续几天
+         **/
+        $comparative_type = $request->input('comparative_type'); //对比方式
+        switch ($comparative_type){
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                $this->max_average = 2;
+                break;
+        }
+
+        $path = $_FILES['fileText']['tmp_name'];
+        $fileName = $_FILES['fileText']['name'];
+
+        /* 判断产品是否存在，存在则报错 */
+        $variety = Variety::where('name',$fileName)->first();
+        if($variety){
+            dd('产品存在');
+        }
+
+        /* 新建产品 */
+        DB::beginTransaction();
+        $variety = new Variety();
+        $variety->name = $fileName;
+        $variety->min_date = $this->min_date;
+        $variety->max_date = $this->max_date;
+        $variety->continuity = $this->max_continuity;
+        $variety->average = $this->max_average;
+        $variety->comparative_type = $comparative_type;
+        $variety->multiple = $this->multiple;
+        $variety->save();
+
+        /* 数据截取 */
+        $data = $variety->cutData($path,$variety->min_date,$variety->max_date);
+        /* 存入产品信息 */
+        $variety->saveFragment($data);
+
+        /* 取出所有数据 */
+        $data = Variety_data::orderBy('date','asc')->get();
+
+        /* 交易记录更新 */
+        for($i=1; $i<=$this->max_continuity; $i++){
+            for($j=2; $j<=$this->max_average; $j++){
+                $trading_terms = new Trading_term();
+                $trading_terms->variety_id = $variety->id;
+                $trading_terms->continuity = $i;
+                $trading_terms->average = $j;
+                $trading_terms->save();
+                $this->results[$i][$j] = $trading_terms->countProfit_percentage($data, $variety->multiple, $variety->comparative_type);
+
+                /*$this->results_weight[$i][$j] = $deal->prevailingThanAverage_Weight();
+                foreach ($deal->total as $key=>$value){
+                    $this->results_year_detail[$i][$key][$j] = $value;
+                }
+                unset($deal);*/
+            }
+        }
+        DB::commit();
+
+        dd('ok');
+            /* 产品数据取出 */
+
+        /* 年份总更新 */
+
+
+
 
         /**
          * 参数不同对比情况，决定是否进行买卖操作
@@ -116,24 +182,59 @@ class VarietyController extends Controller
         return view('variety.edit');
     }
 
-    /**
-     * 在设置了最小年份，最大年份后。
-     * 该函数会将传入文件，裁剪后只保留满足年份条件的范围
-     * 储存在 $this->data 中
-     **/
-    private function initialData($path){
-        $data = file_get_contents($path);
-        $data = explode("\r\n",$data);
+    public function update(Request $request){
+        /* 参数验证 */
+        $validator = \Validator::make($request->input(),[
+            '*' => 'required',
+        ]);
+        if($validator->fails() || !$request->hasFile('fileText')){
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-        array_shift($data);
-        array_pop($data);
+        /**
+         * 读取文件
+         **/
+        $path = $_FILES['fileText']['tmp_name'];
+        $fileName = $_FILES['fileText']['name'];
 
-        foreach ($data as $key=>$value){
-            $row = explode(" ",$value);
-            $row_time = strtotime($row[0]);
-            if($row_time >= $this->min_date && $row_time <= $this->max_date){
-                $this->data[] = $row;
+        /**
+         * 查找产品是否存在
+         **/
+        $variety = Variety::where('name',$fileName)->first();
+        if(!$variety)dd('该产品不存在，请先上传');
+
+        /**
+         * 更新初始数据
+         * 1、将文件读入数组
+         * 2、记录新数据
+         */
+        $this->multiple = $variety->multiple;
+        $this->max_continuity = $variety->continuity;
+        $this->max_average = $variety->average;
+
+        $data_last = $variety->variety_data()->orderBy('date','desc')->first();
+        $this->min_date = strtotime($data_last->date)+60*60*24;
+        $data = $variety->cutData($path, $this->min_date);
+        if(!$data)dd('数据没更新');
+
+        /* 存入产品信息 */
+        DB::beginTransaction();
+        $variety->saveFragment($data);
+
+        /* 取出所有数据 */
+        $data = Variety_data::orderBy('date','asc')->get();
+
+        /* 交易记录更新 */
+        for($i=1; $i<=$this->max_continuity; $i++){
+            for($j=2; $j<=$this->max_average; $j++){
+                $trading_terms = Trading_term::where(['variety_id'=>$variety->id,'continuity'=>$i,'average'=>$j])->first();
+                $this->results[$i][$j] = $trading_terms->updateProfit_percentage($data, $variety->multiple, $variety->comparative_type, $this->min_date);
             }
         }
+
+        DB::commit();
+
+        dd('ok');
     }
+
 }
