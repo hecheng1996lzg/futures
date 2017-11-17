@@ -106,12 +106,6 @@ class VarietyController extends Controller
                 $trading_terms->average = $j;
                 $trading_terms->save();
                 $this->results[$i][$j] = $trading_terms->countProfit_percentage($data, $variety->multiple, $variety->comparative_type);
-
-                /*$this->results_weight[$i][$j] = $deal->prevailingThanAverage_Weight();
-                foreach ($deal->total as $key=>$value){
-                    $this->results_year_detail[$i][$key][$j] = $value;
-                }
-                unset($deal);*/
             }
         }
         DB::commit();
@@ -237,4 +231,7 @@ class VarietyController extends Controller
         dd('ok');
     }
 
+    public function update_all(Request $request){
+        return view('update');
+    }
 }

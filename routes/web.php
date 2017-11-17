@@ -32,6 +32,7 @@ Route::group([],function (){
     Route::post('variety/add','VarietyController@store');               //新增操作
     Route::get('variety/update','VarietyController@edit');              //显示更新页面
     Route::post('variety/update','VarietyController@update');           //更新一个数据
+    Route::get('variety/update/all','VarietyController@update_all');    //显示更新所有页面
     Route::post('variety/update/all','VarietyController@update_all');   //更新所有
     Route::any('variety/{id}','VarietyController@show');                //显示一个数据
 });

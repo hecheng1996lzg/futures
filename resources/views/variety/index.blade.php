@@ -45,8 +45,10 @@
                             <?php
                             $num = 0;
                             $v = App\Trading_term::where(['variety_id'=>$variety->id,'continuity'=>$i,'average'=>$j])->first();
-                            foreach($v->year()->get() as $value){
-                                $num += $value->pivot->value;
+                            if($v){
+                                foreach($v->year()->get() as $value){
+                                    $num += $value->pivot->value;
+                                }
                             }
                             ?>
                             <td style="color: {{ $num<0? 'rgb(0,255,0)':'rgb(255,255,255)' }};">{{ $num*100 }}%</td>

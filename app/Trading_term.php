@@ -54,10 +54,15 @@ class Trading_term extends Model
         /**
          * 将prev_deal之后的记录删除
          **/
-        $lastRecord = Trading_record::where('term_id',$this->id)->where('datetime','>',$this->prev_deal->datetime)->get()[0];
+        $lastRecord = Trading_record::where('term_id',$this->id)->where('datetime','>',$this->prev_deal->datetime)->get();
+        if(!isset($lastRecord[0])){  //最后一条交易是自身的情况下，取自身
+            $lastRecord = Trading_record::where('term_id',$this->id)->where('datetime','>=',$this->prev_deal->datetime)->get();
+        }
+        $lastRecord = $lastRecord[0];
+
         /* 删除前先将更新Num */
         $this->resetNum($this->prev_deal,$lastRecord);
-
+        if ($lastRecord->id != $this->prev_deal->id)$lastRecord->delete();
 
         /**
          * 载入当前数据
@@ -98,6 +103,7 @@ class Trading_term extends Model
                 $bool = '--';
             }
             $operation = $this->setContinuityArr($bool);
+
             /**
              * 跨年则更新初始资金
              * 跨年度需要总结上一年的总金额
@@ -125,17 +131,18 @@ class Trading_term extends Model
              * 结束计算：以当前价格卖掉或买入手上的商品
              **/
             if($key+1 == count($this->data)){
-                /* 强制交易前存入最后一条正常交易记录 */
-                $trading_last = new Trading_last();
+
+                /* 强制交易前改变最后一条正常交易记录 */
+                $trading_last = $this->trading_last;
                 $trading_last->record_id = $this->prev_deal->id;
                 $trading_last->save();
-                $trading_term_2 = Trading_term::find($this->id);
-                $trading_term_2->last_id = $trading_last->id;
-                $trading_term_2->save();
 
                 /* 判断是否最后一条刚好结束，导致重复存入 */
-                if(!Year_total::where(['term_id'=>$this->id,'year_id'=>$this->now_year->id])->first()){
+                if($value->date!=date('Y-m-d',$this->prev_deal->datetime)){
                     $this->calculationTotal($value, !$this->prev_deal->type);
+                }
+
+                if($year == $this->now_year->year){
                     $this->countYearTotal();
                 }
             }
@@ -215,10 +222,10 @@ class Trading_term extends Model
                 $trading_term_2->save();
 
                 /* 判断是否最后一条刚好结束，导致重复存入 */
-                if(!Year_total::where(['term_id'=>$this->id,'year_id'=>$this->now_year->id])->first()){
+                if($value->date!=date('Y-m-d',$this->prev_deal->datetime)){
                     $this->calculationTotal($value, !$this->prev_deal->type);
-                    $this->countYearTotal();
                 }
+                $this->countYearTotal();
             }
         }
         $this->clearDefaultAttr();
@@ -343,6 +350,7 @@ class Trading_term extends Model
                 $this->now_num += $value->closing - $this->prev_deal->value;
             }
         }
+        
         $this->prev_deal = $trading_record;
     }
 
@@ -356,9 +364,9 @@ class Trading_term extends Model
         $num = Year_total::where(['year_id'=>$prev->year_id,'term_id'=>$prev->term_id])->first();
         $num_value = $num->year()->get()[0]->initial_capital*$num->value/$this->variety()->get()[0]->multiple;
         if($prev->id==$last->id || $last->year_id != $num->year_id){
-            return ;
+            $this->now_num = $num_value;
         }else{
-            if($last->type){ //买入
+            if(!$prev->type){ //买入
                 $this->now_num = $num_value - ($prev->value - $last->value);
             }else{ //卖出
                 $this->now_num = $num_value - ($last->value - $prev->value);

@@ -65,7 +65,7 @@
                         </ul>
                     </li>
                     <li>
-                        <p class="iconfont icon-duozhongzhifu">一键更新</p>
+                        <a href="{{ asset('variety/update/all') }}"><p class="iconfont icon-duozhongzhifu">一键更新</p></a>
                     </li>
                     <li>
                         <p class="iconfont icon-duozhongzhifu">系统二列表</p>
