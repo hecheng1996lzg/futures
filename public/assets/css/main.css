@@ -104,7 +104,20 @@ menu ul li{
 
 .sidebar li ul p{
     display: flex;
+}
+
+.sidebar .row a{
     padding: 7px 15px 7px 30px;
+    display: block;
+    width:100%;
+}
+
+.sidebar .rows>p{
+    padding: 7px 15px 7px 30px;
+}
+
+.sidebar .rows>p::before{
+    margin-right:8px;
 }
 
 .sidebar>li>ul>li>ul{
@@ -125,7 +138,7 @@ menu ul li{
     background: #1C4972;
 }
 
-.sidebar ul li p:before{
+.sidebar .row a:before{
     margin-right: 8px;
 }
 /* sidebar end */
@@ -419,4 +432,19 @@ svg circle.active{
 
 .list-add-content li{
     color: #f5f5f5;
+}
+
+
+.msg-err{
+    margin-bottom:0px;
+    color: red;
+}
+.msg-info{
+     margin-bottom:0px;
+     color: white;
+ }
+.msg-info h2:first-child{
+    justify-content: flex-start;
+    display: block;
+    align-items: flex-start;
 }

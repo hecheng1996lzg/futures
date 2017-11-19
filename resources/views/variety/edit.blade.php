@@ -1,6 +1,16 @@
 @extends('layouts.layout1')
 @section('content')
     <article class="list-option">
+        @if(session('err'))
+            <section class="msg-err list-add form-tab list-option-show">
+                <h2>{{ session('err') }}</h2>
+            </section>
+        @endif
+        @if(session('info'))
+            <section class="msg-info list-add form-tab list-option-show">
+                <h2>{{ session('info') }}</h2>
+            </section>
+        @endif
         <form id="addForm"  method="post" enctype="multipart/form-data" action="{{ asset('variety/update') }}">
             <section class="list-add form-tab list-option-show">
                 <h2>

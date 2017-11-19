@@ -1,7 +1,18 @@
 @extends('layouts.layout1')
 @section('content')
     <article class="list-option">
-        <form id="addForm"  method="post" enctype="multipart/form-data" action="{{ asset('variety/update') }}">
+        @if(session('update_log'))
+            <section class="msg-info list-add form-tab list-option-show">
+                    @foreach(session('update_log') as $value)
+                        <h2>
+                            <span>{{ $value['name'] }}</span> &nbsp;
+                            <span>{{ $value['msg'] }}</span> &nbsp;
+                            <span>{{ $value['end'] or '' }}</span>
+                        </h2>
+                    @endforeach
+            </section>
+        @endif
+        <form id="addForm"  method="post" enctype="multipart/form-data" action="{{ asset('variety/update/all') }}">
             <section class="list-add form-tab list-option-show">
                 <h2>
                     <span>{{ $variety or '' }}一键更新所有项目数据</span>

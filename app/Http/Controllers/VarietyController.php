@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\DB;
 
 class VarietyController extends Controller
 {
+    public $logMsg = [
+        1=>'处理成功',
+        2=>'文件不存在',
+        3=>'文件日期陈旧',
+        4=>'未知错误',
+    ];
+
     public $data = []; //上传文本的二维数组格式
 
     public $results = []; //最后表格结果集
@@ -74,7 +81,7 @@ class VarietyController extends Controller
         /* 判断产品是否存在，存在则报错 */
         $variety = Variety::where('name',$fileName)->first();
         if($variety){
-            dd('产品存在');
+            return redirect()->back()->with('err' , '产品存在，无法重复添加');
         }
 
         /* 新建产品 */
@@ -95,7 +102,7 @@ class VarietyController extends Controller
         $variety->saveFragment($data);
 
         /* 取出所有数据 */
-        $data = Variety_data::orderBy('date','asc')->get();
+        $data = $variety->variety_data()->orderBy('date','asc')->get();
 
         /* 交易记录更新 */
         for($i=1; $i<=$this->max_continuity; $i++){
@@ -110,61 +117,7 @@ class VarietyController extends Controller
         }
         DB::commit();
 
-        dd('ok');
-            /* 产品数据取出 */
-
-        /* 年份总更新 */
-
-
-
-
-        /**
-         * 参数不同对比情况，决定是否进行买卖操作
-         * 1、将当日与前几日均线对比，且连续几天
-         * 2、将当日均线与前几日均线对比，且连续几天
-         * 3、将当日与昨天对比，且连续几天
-         **/
-        $comparative_type = $request->input('comparative_type'); //对比方式
-        switch ($comparative_type){
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                $this->max_average = 2;
-                break;
-        }
-
-        $variety->name = rtrim($_FILES['fileText']['name'],'.txt');
-        $variety->min_date = $this->min_date;
-        $variety->max_date = $this->max_date;
-        $variety->continuity = $this->max_continuity;
-        $variety->average = $this->max_average;
-        $variety->comparative_type = $comparative_type;
-        $variety->multiple = $this->multiple;
-        $variety->save();
-
-        for($i=1; $i<=$this->max_continuity; $i++){
-            for($j=2; $j<=$this->max_average; $j++){
-                $transaction_result = new Transaction_result();
-                $this->results[$i][$j] = $transaction_result->saveRecord($this->data, $i, $j, $this->multiple, $comparative_type, $variety->id);
-                foreach ($transaction_result->total as $key=>$value){
-                    $this->results_year_detail[$i][$key][$j] = $value;
-                }
-                unset($transaction_result);
-            }
-        }
-        DB::commit();
-
-        /**
-         * 上传文件,使用iconv 防止中文乱码
-         **/
-        $name = $_FILES["fileText"]["name"];
-        $name=iconv("UTF-8","gb2312", $name);
-        $test = move_uploaded_file($path,'../txt_resource/'.$name);
-        $name=iconv("gb2312","UTF-8", $name);
-
-        return redirect('variety/'.$variety->id);
+        return redirect()->back()->with('info' , $fileName.'保存成功！请在产品列表中查看');
     }
 
     public function show($id){
@@ -190,12 +143,62 @@ class VarietyController extends Controller
          **/
         $path = $_FILES['fileText']['tmp_name'];
         $fileName = $_FILES['fileText']['name'];
+        $state = $this->update_action($path,$fileName);
 
+        return redirect()->back()->with('info' , $fileName.$this->logMsg[$state]);
+    }
+
+    public function update_all(Request $request){
+        return view('update');
+    }
+
+    public function update_all_save(Request $request){
+        /**
+         * 1. 文件名
+         * 2. 状态
+         *      1. 处理成功
+         *      2. 文件不存在
+         *      3. 文件日期陈旧
+         *      4. 未知错误
+         * 3. 最新日期
+         **/
+        $base_path = base_path('txt_resource');
+        $logs = [];
+        $files = $this->read_all($base_path);
+        DB::beginTransaction();
+        foreach ($files as $value){
+            $log = [];
+            $log['name'] = $value;
+
+            $path = asset("../txt_resource/".$value);
+            $fileName = $value;
+
+            $state = $this->update_action($path,$fileName);
+            $log['state'] = $state;
+            $log['msg'] = $this->logMsg[$state];
+            if($state==1){
+                $log['end'] = Variety::where('name',$fileName)->first()->variety_data()->orderBy('date','desc')->first()->date;
+            }
+
+            $logs[] = $log;
+        }
+        DB::commit();
+        return redirect()->back()->with('update_log' , $logs);
+    }
+
+    /**
+     * 1. 状态
+     *      1. 处理成功
+     *      2. 文件不存在
+     *      3. 文件日期陈旧
+     *      4. 未知错误
+     **/
+    public function update_action($path,$fileName){
         /**
          * 查找产品是否存在
          **/
         $variety = Variety::where('name',$fileName)->first();
-        if(!$variety)dd('该产品不存在，请先上传');
+        if(!$variety)return 2;
 
         /**
          * 更新初始数据
@@ -209,14 +212,14 @@ class VarietyController extends Controller
         $data_last = $variety->variety_data()->orderBy('date','desc')->first();
         $this->min_date = strtotime($data_last->date)+60*60*24;
         $data = $variety->cutData($path, $this->min_date);
-        if(!$data)dd('数据没更新');
+        if(!$data)return 3;
 
         /* 存入产品信息 */
         DB::beginTransaction();
         $variety->saveFragment($data);
 
         /* 取出所有数据 */
-        $data = Variety_data::orderBy('date','asc')->get();
+        $data = $variety->variety_data()->orderBy('date','asc')->get();
 
         /* 交易记录更新 */
         for($i=1; $i<=$this->max_continuity; $i++){
@@ -228,10 +231,27 @@ class VarietyController extends Controller
 
         DB::commit();
 
-        dd('ok');
+        return 1;
+
     }
 
-    public function update_all(Request $request){
-        return view('update');
+    public function read_all ($dir)
+    {
+        $arr = [];
+        if (!is_dir($dir)) return false;
+
+        $handle = opendir($dir);
+
+        if ($handle){
+            while (($fl = readdir($handle)) !== false) {
+                $temp = $dir . DIRECTORY_SEPARATOR . $fl;
+                if (!is_dir($temp)) {
+                    $arr[] = mb_convert_encoding($fl,'utf-8','gb2312');
+                }
+            }
+        }
+        return $arr;
     }
+
+
 }

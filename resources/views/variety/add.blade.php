@@ -1,6 +1,17 @@
 @extends('layouts.layout1')
 @section('content')
+
     <article class="list-option">
+        @if(session('err'))
+        <section class="msg-err list-add form-tab list-option-show">
+            <h2>{{ session('err') }}</h2>
+        </section>
+        @endif
+        @if(session('info'))
+            <section class="msg-info list-add form-tab list-option-show">
+                <h2>{{ session('info') }}</h2>
+            </section>
+        @endif
         <form id="addForm"  method="post" enctype="multipart/form-data" action="{{ asset('variety/add') }}">
             <section class="list-add form-tab list-option-show">
                 <h2>
@@ -15,25 +26,25 @@
                 <div class="list-add-content content">
                     <section>
                         <div>
-                            <label for="min_year">开始日期：</label>
+                            <label for="min_year">开始日期：<span class="err">{{ $errors->first('min_year') }}</span></label>
                             <p>
                                 <input id="min_year" name="min_year" type="date" class="input-text" placeholder="请输入开始年份" value="2012-01-01" required>
                             </p>
                         </div>
                         <div>
-                            <label for="max_year">结束日期：</label>
+                            <label for="max_year">结束日期：<span class="err">{{ $errors->first('max_year') }}</span></label>
                             <p>
                                 <input id="max_year" name="max_year" type="date" class="input-text" placeholder="请输入结束年份" value="2017-12-31" required>
                             </p>
                         </div>
                         <div>
-                            <label for="max_continuity">连续天数：</label>
+                            <label for="max_continuity">连续天数：<span class="err">{{ $errors->first('max_continuity') }}</span></label>
                             <p>
                                 <input id="max_continuity" name="max_continuity" type="number" class="input-text" placeholder="请输入连续天数" value="10" required>
                             </p>
                         </div>
                         <div>
-                            <label for="max_average">几日均线：</label>
+                            <label for="max_average">几日均线：<span class="err">{{ $errors->first('max_average') }}</span></label>
                             <p>
                                 <input id="max_average" name="max_average" type="number" class="input-text" placeholder="请输入几日均线" value="51" required>
                             </p>
@@ -41,13 +52,13 @@
                     </section>
                     <section>
                         <div class="w100">
-                            <label>请选择上传文件，可以拖入：{{ $errors->first('fileText') }}</label>
+                            <label>请选择上传文件，可以拖入：<span class="err">{{ $errors->first('fileText') }}</span></label>
                             <p>
                                 <input name="fileText" type="file" class="input-text" placeholder="请选择上传文件，可以拖入">
                             </p>
                         </div>
                         <div>
-                            <label>比较方式：{{ $errors->first('comparative_type') }}</label>
+                            <label>比较方式：<span class="err">{{ $errors->first('comparative_type') }}</span></label>
                             <p>
                                 <select name="comparative_type" class="input-text">
                                     <option value="1">默认: 均线对比均线</option>
@@ -57,7 +68,7 @@
                             </p>
                         </div>
                         <div>
-                            <label for="multiple">手数：</label>
+                            <label for="multiple">手数：<span class="err">{{ $errors->first('multiple') }}</span></label>
                             <p>
                                 <input id="multiple" name="multiple" type="number" class="input-text" placeholder="请输入手数" value="10" required>
                             </p>

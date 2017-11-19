@@ -45,30 +45,32 @@
             <li>
                 <h3>欢迎使用futures V2.10</h3>
                 <ul class="border-light border-light-right">
-                    <li>
-                        <a href="{{ asset('/') }}"><p class="iconfont icon-duozhongzhifu">首页</p></a>
+                    <li class="row">
+                        <p><a class="iconfont icon-duozhongzhifu" href="{{ asset('/') }}">首页</a></p>
                     </li>
                 </ul>
             <li>
                 <h3>系统功能</h3>
                 <ul class="border-light border-light-right">
-                    <li>
+                    <li class="rows">
                         <p class="iconfont icon-zhengli">
                             <span>产品列表</span>
                             <i class="iconfont icon-xiangxia2"></i>
                         </p>
                         <ul style="display: none">
-                            <a href="{{ asset('variety/add') }}"><li class="active"><p>增加产品+</p></li></a>
+                            <li class="row active">
+                                <p><a href="{{ asset('variety/add') }}">增加产品+</a></p>
+                            </li>
                             @foreach($varieties as $value)
-                            <li><a href="{{ asset('variety/'.$value->id) }}"><p>{{ $value->name }}</p></a></li>
+                            <li class="row"><p><a href="{{ asset('variety/'.$value->id) }}">{{ $value->name }}</a></p></li>
                             @endforeach
                         </ul>
                     </li>
-                    <li>
-                        <a href="{{ asset('variety/update/all') }}"><p class="iconfont icon-duozhongzhifu">一键更新</p></a>
+                    <li class="row">
+                        <p><a class="iconfont icon-duozhongzhifu" href="{{ asset('variety/update/all') }}">一键更新</a></p>
                     </li>
-                    <li>
-                        <p class="iconfont icon-duozhongzhifu">系统二列表</p>
+                    <li class="row">
+                        <p><a class="iconfont icon-duozhongzhifu" href="#">系统二列表</a></p>
                     </li>
                 </ul>
             </li>
