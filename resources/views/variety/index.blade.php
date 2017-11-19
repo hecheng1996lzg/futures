@@ -23,7 +23,7 @@
                     <a class="iconfont icon-biaoxing">保存</a>
                 </li>
                 <li>
-                    <a href="{{ asset('download') }}" target="_blank" class="iconfont icon-xiangshang5">导出</a>
+                    <a href="{{ asset('download')."/".$variety->id }}" target="_blank" class="iconfont icon-xiangshang5">导出</a>
                 </li>
             </ul>
         </section>

@@ -43,7 +43,7 @@
         </div>
         <ul class="sidebar">
             <li>
-                <h3>欢迎使用futures V2.10</h3>
+                <h3>欢迎使用futures V2.18</h3>
                 <ul class="border-light border-light-right">
                     <li class="row">
                         <p><a class="iconfont icon-duozhongzhifu" href="{{ asset('/') }}">首页</a></p>

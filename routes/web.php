@@ -40,7 +40,7 @@ Route::group([],function (){
 /**
  * 下载
  **/
-Route::any('/download', 'IndexController@download'); //下载
+Route::any('/download/{id}', 'IndexController@download'); //下载
 
 /**
  * 保存选择区域
